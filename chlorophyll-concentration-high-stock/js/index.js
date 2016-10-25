@@ -125,20 +125,17 @@ var maxRange = 30 * 24 * 3600 * 1000;
 var tickIntervalsStep = 12;
 var tickIntervals = 24 * 3600 * 1000 * 365 / tickIntervalsStep;
 
-
-
 var MAX, MIN = 0;
 
 console.clear();
 
 function updateExtremes(xAxis, min, max) {
-  timeout = setTimeout(function() {
+  clearTimeout(this.id);
+  this.id = setTimeout(function() {
     xAxis.setExtremes(min, max);
     setMinMax(xAxis);
 
   }, 1);
-
-  return timeout;
 }
 
 function setMinMax(xAxis) {
@@ -218,10 +215,14 @@ $(function() {
             var indexClicked = tilesNASAGeoTiffsLayerIds.indexOf(layer);
             console.log(indexClicked);
 
-            switchLayer(indexClicked);
-
             pts = "Updating Map to " + layer;
             console.log(pts);
+
+            try {
+              switchLayer(indexClicked);
+            } catch (err) {
+              console.log(err.message);
+            }
 
             // check if the user set the extermes
             // too much.  If so, adjust
@@ -277,7 +278,11 @@ $(function() {
             // format: '{value:%Y}',
             step: tickIntervalsStep,
             rotation: -75,
-            style:  { "color": "#555555", "cursor": "default", "fontSize": "8px" }
+            style: {
+              "color": "#555555",
+              "cursor": "default",
+              "fontSize": "8px"
+            }
           },
           ordinal: false
         },
