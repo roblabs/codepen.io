@@ -68,7 +68,7 @@ map.on('load', function() {
 
 function switchLayer(layer) {
   layerId = tilesNASAGeoTiffsLayerIds[layer];
-  document.getElementById("dataSet").innerHTML = layerId;
+  // document.getElementById("dataSet").innerHTML = layerId;
   /*
     Update sources and layers
   */
@@ -110,7 +110,7 @@ function switchLayer(layer) {
 }
 
 function outputUpdate(sliderIndex) {
-  document.querySelector('#dataSet').value = tilesNASAGeoTiffsLayerIds[sliderIndex];
+  // document.querySelector('#dataSet').value = tilesNASAGeoTiffsLayerIds[sliderIndex];
   console.log(tilesNASAGeoTiffsLayerIds[sliderIndex]);
   switchLayer(sliderIndex);
 }
@@ -157,7 +157,7 @@ $(function() {
     window.chart = new Highcharts.StockChart({
 
       credits: {
-        enabled: true,
+        enabled: false,
         text: "http://RobLabs.com",
         href: "http://RobLabs.com"
       },
@@ -270,12 +270,6 @@ $(function() {
       },
       tooltip: {
         enabled: false
-      },
-      title: {
-        text: 'Chlorophyll Concentration'
-      },
-      subtitle: {
-        text: 'Click on date to move current window'
       },
       series: [{
         name: 'AAPL',
