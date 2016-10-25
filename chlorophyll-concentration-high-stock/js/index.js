@@ -81,32 +81,29 @@ function switchLayer(layer) {
       "url": currentSource,
       "type": "raster"
     });
-  } catch (err) {
-    console.log(err.message);
-  }
 
-  currentLayer = rootSourceUrlLayerId.rootLayerId + layerId;
-  map.addLayer({
-    "id": currentLayer,
-    "type": "raster",
-    "source": currentSource,
-    "interactive": true,
-    "layout": {
-      "visibility": "visible"
+    currentLayer = rootSourceUrlLayerId.rootLayerId + layerId;
+    map.addLayer({
+      "id": currentLayer,
+      "type": "raster",
+      "source": currentSource,
+      "interactive": true,
+      "layout": {
+        "visibility": "visible"
+      }
+    });
+
+    // Remove older layer
+    try {
+      map.removeLayer(previousLayer);
+    } catch (err) {
+      console.log(previousLayer + " " + err.message);
+    } finally {
+      previousLayer = currentLayer;
     }
-  });
 
-  /*
-    Clean up older layers
-  */
-
-  // Remove older layer
-  try {
-    map.removeLayer(previousLayer);
   } catch (err) {
-    console.log(err.message);
-  } finally {
-    previousLayer = currentLayer;
+    console.log(currentSource + " " + err.message);
   }
 
 }
@@ -134,7 +131,6 @@ function updateExtremes(xAxis, min, max) {
   this.id = setTimeout(function() {
     xAxis.setExtremes(min, max);
     setMinMax(xAxis);
-
   }, 1);
 }
 
@@ -213,9 +209,8 @@ $(function() {
             var layer = "MY1DMM_CHLORA_" + y + "-" + m;
 
             var indexClicked = tilesNASAGeoTiffsLayerIds.indexOf(layer);
-            console.log(indexClicked);
 
-            pts = "Updating Map to " + layer;
+            pts = "indexClicked = " + indexClicked + ", Updating Map to " + layer;
             console.log(pts);
 
             try {
