@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>Highcharts Demos › Navigator-only chart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    
+    
+    
+    
+    
+    
+  </head>
+
+  <body>
+
+    <div id="container" style="height: 100px; min-width: 500px"></div>
+
+<h3>High Stock Navigator-only Chart</h3>
+
+<ol>
+<li><p>Loads AAPL data, sets Navigator to a fixed time window</p></li>
+<li><p>Chart is Navigator only chart</p>
+
+<ul>
+<li><a href="http://jsfiddle.net/f7Y9p/">http://jsfiddle.net/f7Y9p/</a></li>
+<li><a href="http://forum.highcharts.com/highcharts-usage/navigator-only-chart-t21265/">http://forum.highcharts.com/highcharts-usage/navigator-only-chart-t21265/</a></li>
+</ul></li>
+<li><p>If user changes extremes (either the min or max), reset the window to the default fixed time window</p>
+
+<ul>
+<li><a href="http://jsfiddle.net/PyMag/1/">http://jsfiddle.net/PyMag/1/</a></li>
+<li><a href="http://stackoverflow.com/questions/16612061/highstock-make-navigator-handles-move-a-fixed-distance-relative-to-eachother">http://stackoverflow.com/questions/16612061/highstock-make-navigator-handles-move-a-fixed-distance-relative-to-eachother</a>
+<a href="http://api.highcharts.com/highstock/xAxis.events.afterSetExtremes">http://api.highcharts.com/highstock/xAxis.events.afterSetExtremes</a></li>
+</ul></li>
+</ol>
+
+<h3>Current issues</h3>
+
+<pre><code>1.  When &#39;grabbing&#39; and moving either the min or max extreme, it may take 1-2 times to move the window properly.
+2.  Checking `console.log` it looks like the event handler is called too many times.
+</code></pre>
+
+<h3>Usage cases</h3>
+
+<pre><code>1.  Click on area of graph, either in the window or out
+2.  grab &#39;bottom&#39; of window, and move left &amp; right
+3.  grab &#39;right&#39; extreme of window, and make window larger.   Should snap to default window width
+4.  grab &#39;right&#39; extreme of window, and make window smaller.  Should snap to default window width
+5.  grab &#39;left&#39;  extreme of window, and make window larger.   Should snap to default window width
+6.  grab &#39;left&#39;  extreme of window, and make window smaller.  Should snap to default window width
+</code></pre>
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+
+<script src="http://code.highcharts.com/stock/highstock.js"></script>
+
+<script src="http://code.highcharts.com/stock/modules/exporting.js"></script>
+    
+        <script src="js/index.js"></script>
+
+    
+    
+  </body>
+</html>
