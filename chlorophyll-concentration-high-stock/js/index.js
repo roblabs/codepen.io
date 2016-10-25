@@ -1,4 +1,6 @@
 // Mapbox
+
+mapboxgl.accessToken = 'pk.eyJ1IjoibXJpZWRpamsiLCJhIjoiY2lzNzM1eWV6MDJkajJ0cG4xdjZzdTg4cCJ9.7OZRVApNk9iTjneT5Kx4Aw';
 var map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/satellite-v9',
@@ -120,6 +122,9 @@ function outputUpdate(sliderIndex) {
 // High Stock
 
 var maxRange = 30 * 24 * 3600 * 1000;
+var tickIntervals = 24 * 3600 * 1000 * 365 / 4;
+var tickIntervalsStep = 4;
+
 
 var MAX, MIN = 0;
 
@@ -266,9 +271,15 @@ $(function() {
       },
       navigator: {
         xAxis: {
-tickInterval:   24 * 3600 * 1000 * 365 /2,
-ordinal: false
-}
+          tickInterval: tickIntervals,
+          labels: {
+            format: '{value:%Y}',
+            step: tickIntervalsStep,
+            rotation: -90,
+            style:  { "color": "#555555", "cursor": "default", "fontSize": "9px" }
+          },
+          ordinal: false
+        },
       },
       rangeSelector: {
         enabled: false
