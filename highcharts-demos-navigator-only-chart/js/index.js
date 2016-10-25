@@ -1,4 +1,7 @@
 var maxRange = 200 * 24 * 3600 * 1000; // 200 day window is appropriate for AAPL stock data demo
+var tickIntervals = 1 * 24 * 3600 * 1000 * 365 / 4;
+
+var tickIntervalsStep = 2;
 
 var MAX, MIN = 0;
 
@@ -25,12 +28,11 @@ function setMinMax(xAxis) {
 $(function() {
 
   $.getJSON('http://www.highcharts.com/samples/data/jsonp.php?filename=aapl-c.json&callback=?', function(data) {
-    
 
     // Create the chart
     window.chart = new Highcharts.StockChart({
-      
-                credits: {
+
+      credits: {
         enabled: true,
         text: "http://RobLabs.com",
         href: "http://RobLabs.com"
@@ -116,7 +118,18 @@ $(function() {
           enabled: false
         }
       },
-      navigator: {},
+      navigator: {
+        xAxis: {
+          tickInterval: tickIntervals,
+          labels: {
+            // format: '{value:%Y-%M}',
+            step: tickIntervalsStep,
+            rotation: -75,
+            style:  { "color": "#555555", "cursor": "default", "fontSize": "9px" }
+          },
+          ordinal: false
+        },
+      },
       rangeSelector: {
         enabled: false
       },

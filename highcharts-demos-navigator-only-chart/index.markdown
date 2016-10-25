@@ -11,11 +11,13 @@
 3.  If user changes extremes (either the min or max), reset the window to the default fixed time window
     * [http://jsfiddle.net/PyMag/1/](http://jsfiddle.net/PyMag/1/)
     * [http://stackoverflow.com/questions/16612061/highstock-make-navigator-handles-move-a-fixed-distance-relative-to-eachother](http://stackoverflow.com/questions/16612061/highstock-make-navigator-handles-move-a-fixed-distance-relative-to-eachother)
-    [http://api.highcharts.com/highstock/xAxis.events.afterSetExtremes](http://api.highcharts.com/highstock/xAxis.events.afterSetExtremes)
+   * [http://api.highcharts.com/highstock/xAxis.events.afterSetExtremes](http://api.highcharts.com/highstock/xAxis.events.afterSetExtremes)
+   * Issue filed on SO [http://stackoverflow.com/questions/40209080/high-stocks-how-to-handle-setextremes](http://stackoverflow.com/questions/40209080/high-stocks-how-to-handle-setextremes)
     
 ### Current issues
 ```
 1.  When 'grabbing' and moving either the min or max extreme, it may take 1-2 times to move the window properly.
+
 2.  Checking `console.log` it looks like the event handler is called too many times.
 ```
 

@@ -264,7 +264,12 @@ $(function() {
           enabled: false
         }
       },
-      navigator: {},
+      navigator: {
+        xAxis: {
+tickInterval:   24 * 3600 * 1000 * 365 /2,
+ordinal: false
+}
+      },
       rangeSelector: {
         enabled: false
       },
