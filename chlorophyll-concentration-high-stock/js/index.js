@@ -122,8 +122,9 @@ function outputUpdate(sliderIndex) {
 // High Stock
 
 var maxRange = 30 * 24 * 3600 * 1000;
-var tickIntervals = 24 * 3600 * 1000 * 365 / 4;
-var tickIntervalsStep = 4;
+var tickIntervalsStep = 12;
+var tickIntervals = 24 * 3600 * 1000 * 365 / tickIntervalsStep;
+
 
 
 var MAX, MIN = 0;
@@ -273,10 +274,10 @@ $(function() {
         xAxis: {
           tickInterval: tickIntervals,
           labels: {
-            format: '{value:%Y}',
+            // format: '{value:%Y}',
             step: tickIntervalsStep,
-            rotation: -90,
-            style:  { "color": "#555555", "cursor": "default", "fontSize": "9px" }
+            rotation: -75,
+            style:  { "color": "#555555", "cursor": "default", "fontSize": "8px" }
           },
           ordinal: false
         },
