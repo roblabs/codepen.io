@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>MetricsGraphics.js — Scientific Data</title>
+    
+    
+    
+    
+        <link rel="stylesheet" href="css/style.css">
+
+    
+    
+    
+    
+  </head>
+
+  <body>
+
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+<meta property='og:title' content='MetricsGraphics.js' />
+<meta property='og:description' content='MetricsGraphics.js is a library optimized
+    for visualizing and laying out time-series data. It provides a simple way to produce
+    common types of graphics in a principled, consistent and responsive way.' />
+<meta property='og:image' content='http://metricsgraphicsjs.org/images/og-logo.png' />
+<meta property='og:type' content='website' />
+<meta property='og:url' content='http://metricsgraphicsjs.org/' />
+<meta property='og:site_name' content='MetricsGraphics.js' />
+
+<link href='images/og-logo.png' rel='icon' type='image/png' />
+
+<title>MetricsGraphics.js - a library based on D3.js, optimized for visualizing and laying out time-series data</title>
+
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+<link href='https://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css' rel='stylesheet' type='text/css'>
+<link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
+
+<link href='http://metricsgraphicsjs.org/css/metricsgraphics.css' rel='stylesheet' type='text/css'>
+<link href='http://metricsgraphicsjs.org/css/metricsgraphics-demo.css' rel='stylesheet' type='text/css'>
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="http://metricsgraphicsjs.org/js/lib/ace.js" charset="utf-8"></script>
+
+<!-- dev start -->
+<script src='http://metricsgraphicsjs.org/src/js/MG.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/misc/utility.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/data_graphic.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/hooks.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/register.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/bootstrap_tooltip_popover.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/chart_title.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/scales.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/y_axis.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/x_axis.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/init.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/markers.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/rollover.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/common/window_listeners.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/layout/bootstrap_dropdown.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/layout/button.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/charts/line.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/charts/histogram.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/charts/point.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/charts/bar.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/charts/table.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/charts/missing.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/misc/process.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/misc/smoothers.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/misc/formatters.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/misc/transitions.js'></script>
+<script src='http://metricsgraphicsjs.org/src/js/misc/error.js'></script>
+<!-- dev end -->
+
+<div class='container'>
+    <div class='head'>
+        <ul>
+            <li><a href='http://www.metricsgraphicsjs.org/'>Home</a></li>
+            <li><a href='https://github.com/mozilla/metrics-graphics/releases'>Download</a></li>
+            <li><a href='https://github.com/mozilla/metrics-graphics'>Code</a></li>
+            <li><a href='https://github.com/mozilla/metrics-graphics/issues'>Issues</a></li>
+            <li><a href='examples.htm'>Examples</a></li>
+        </ul>
+
+        <img src='http://www.metricsgraphicsjs.org/images/logo.svg' id='logo' class='svg' />
+    </div>
+
+    <div id='description'>
+        <p><i>MetricsGraphics.js</i> is a library built on top of
+        <a href='http://d3js.org/'>D3</a> that is optimized for visualizing and
+        laying out time-series data. It provides a simple way to produce common
+        types of graphics in a principled, consistent and responsive way. The
+        library currently supports line charts, scatterplots and histograms as
+        well as features like rug plots and basic linear regression.</p>
+
+        <p>This demo allows you to play around with the library without having to
+        download it. Try doubling the number of sightings in, say, 1995 and see
+        how that affects the graphic. Or how about changing any of the options in
+        <i>MG.data_graphic</i>? Or perhaps change the chart type to a scatterplot by
+        setting <code>chart_type:'point'</code>, switching the <i>x</i> and <i>y</i>
+        accessors and increasing the <i>height</i>? The data object is set to the
+        contents of the <i>Data</i> text area. Errors are logged to the console.</p>
+    </div>
+</div>
+
+<div class='container'>
+    <div class='row main-windows-titles'>
+        <div class='col-xs-2'>Data</div>
+        <div class='js-title col-xs-5'>
+            JavaScript <a href='https://github.com/mozilla/metrics-graphics/wiki/List-of-Options#list-of-options' target='_blank'>See Full List of Options</a>
+            <button type='button' class='update btn'>Run</button>
+        </div>
+    </div>
+    <div class='row main-windows'>
+        <div class='data col-xs-2'>
+            <textarea></textarea>
+        </div>
+        <div class='js col-xs-5' id='editor'></div>
+        <div class='result text-center col-xs-5'></div>
+    </div>
+</div>
+
+<div class='container footer'>
+    Created by <a href='https://twitter.com/alialmossawi'>Ali Almossawi</a> and
+    <a href='https://github.com/hamilton'>Hamilton Ulmer</a>
+    <br />2014-2016 &middot; Shared under a <a href='http://www.mozilla.org/MPL/2.0/'>
+    Mozilla Public License</a>
+</div>
+    
+        <script src="js/index.js"></script>
+
+    
+    
+  </body>
+</html>
