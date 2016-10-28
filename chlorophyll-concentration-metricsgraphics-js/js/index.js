@@ -136,7 +136,7 @@ d3.json('https://gist.githubusercontent.com/roblabs/436e5460a640170fc77033d362fb
     mouseout: function(d, i) {
       clearTimeout(timerId);
     },
-    title: "Chlorophyll Concentration",
+    title: "",
     description: "",
     data: concentrationData,
     markers: [],
