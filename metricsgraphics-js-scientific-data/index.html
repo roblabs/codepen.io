@@ -43,34 +43,36 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="http://metricsgraphicsjs.org/js/lib/ace.js" charset="utf-8"></script>
 
+<script src="https://raw.githubusercontent.com/mozilla/metrics-graphics/master/dist/metricsgraphics.min.js" charset="utf-8"></script>
+
 <!-- dev start -->
-<script src='http://metricsgraphicsjs.org/src/js/MG.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/misc/utility.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/data_graphic.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/hooks.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/register.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/bootstrap_tooltip_popover.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/chart_title.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/scales.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/y_axis.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/x_axis.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/init.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/markers.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/rollover.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/common/window_listeners.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/layout/bootstrap_dropdown.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/layout/button.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/charts/line.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/charts/histogram.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/charts/point.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/charts/bar.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/charts/table.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/charts/missing.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/misc/process.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/misc/smoothers.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/misc/formatters.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/misc/transitions.js'></script>
-<script src='http://metricsgraphicsjs.org/src/js/misc/error.js'></script>
+<!-- <script src='http://metricsgraphicsjs.org/src/js/MG.js'></script>
+<!-- <script src='http://metricsgraphicsjs.org/src/js/misc/utility.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/data_graphic.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/hooks.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/register.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/bootstrap_tooltip_popover.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/chart_title.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/scales.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/y_axis.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/x_axis.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/init.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/markers.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/rollover.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/common/window_listeners.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/layout/bootstrap_dropdown.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/layout/button.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/charts/line.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/charts/histogram.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/charts/point.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/charts/bar.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/charts/table.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/charts/missing.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/misc/process.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/misc/smoothers.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/misc/formatters.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/misc/transitions.js'></script> -->
+<!-- <script src='http://metricsgraphicsjs.org/src/js/misc/error.js'></script> --> 
 <!-- dev end -->
 
 <div class='container'>
@@ -94,13 +96,8 @@
         library currently supports line charts, scatterplots and histograms as
         well as features like rug plots and basic linear regression.</p>
 
-        <p>This demo allows you to play around with the library without having to
-        download it. Try doubling the number of sightings in, say, 1995 and see
-        how that affects the graphic. Or how about changing any of the options in
-        <i>MG.data_graphic</i>? Or perhaps change the chart type to a scatterplot by
-        setting <code>chart_type:'point'</code>, switching the <i>x</i> and <i>y</i>
-        accessors and increasing the <i>height</i>? The data object is set to the
-        contents of the <i>Data</i> text area. Errors are logged to the console.</p>
+        <p>This demo adds a click handler to the Graph.  Hover over a 
+      data point, then click on it, and it should update the date in the area obove the title.</p>
     </div>
 </div>
 
@@ -117,7 +114,8 @@
             <textarea></textarea>
         </div>
         <div class='js col-xs-5' id='editor'></div>
-        <div class='result text-center col-xs-5'></div>
+        <div class='result text-center col-xs-5'<div>
+                   <div id='month'>Month</div>
     </div>
 </div>
 
@@ -127,7 +125,8 @@
     <br />2014-2016 &middot; Shared under a <a href='http://www.mozilla.org/MPL/2.0/'>
     Mozilla Public License</a>
 </div>
-    
+    <script src='https://raw.githubusercontent.com/mozilla/metrics-graphics/master/dist/metricsgraphics.min.js'></script>
+
         <script src="js/index.js"></script>
 
     
