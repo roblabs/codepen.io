@@ -1,5 +1,12 @@
 console.clear();
 
+var database = firebase.database();
+var filter;
+var databaseEndpoint = 'foo/';
+
+var FIPS = [];
+var baseFilter = ['in', 'FIPS'];
+
 var map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/streets-v9',
@@ -47,30 +54,56 @@ map.on('load', function() {
     "filter": ["in", "COUNTY", ""]
   }, 'place-city-sm'); // Place polygon under these labels.
 
-  var FIPS = [];
+  // Database
+  var databaseObject = [];
+  var starCountRef = firebase.database().ref(databaseEndpoint);
+  starCountRef.on('value', function(snapshot) {
+    console.log(snapshot.val());
+
+    if (snapshot.val() != null) {
+      databaseObject = snapshot.val();
+      console.log(databaseObject);
+      console.log(databaseObject.filter);
+      filter = databaseObject.filter;
+      console.log(filter);
+
+      map.setFilter('counties-highlighted', filter);
+    } else {
+
+    this.filter = baseFilter;
+    console.log(filter);
+    }
+
+  });
 
   map.on('click', function(e) {
 
+    console.log(e.point);
     var features = map.queryRenderedFeatures(e.point, {
       layers: ['counties']
     });
-    // console.log(e.lngLat);
+    console.log(e.lngLat);
+    console.log(features[0]);
     var county = features[0].properties.FIPS;
+    console.log(features[0].properties);
 
     // if does not contain then push
-    if (FIPS.indexOf(county) === -1) {
-      FIPS.push(county);
+    console.log(county);
+    console.log(filter);
+    if (filter.indexOf(county) === -1) {
+      console.log("adding county");
+      filter = filter.concat(county);
     } else {
       // if contains then splice that index out
       var deleteCount = 1;
-      FIPS.splice(FIPS.indexOf(county), deleteCount);
-
+      filter.splice(filter.indexOf(county), deleteCount);
     }
-
-    var baseFilter = ['in', 'FIPS'];
-    var filter = baseFilter.concat(FIPS);
     console.log(filter);
     map.setFilter('counties-highlighted', filter);
+
+    firebase.database().ref(databaseEndpoint).set({
+      filter: filter
+    });
 
   });
 
@@ -103,11 +136,11 @@ map.on('load', function() {
     // Render found features in an overlay.
     overlay.innerHTML = '';
 
-//     var title = document.createElement('strong');
-//     title.textContent = feature.properties.COUNTY;
+    //     var title = document.createElement('strong');
+    //     title.textContent = feature.properties.COUNTY;
 
-//     overlay.appendChild(title);
-//     overlay.style.display = 'block';
+    //     overlay.appendChild(title);
+    //     overlay.style.display = 'block';
 
     // Add features that share the same county name to the highlighted layer.
     // map.setFilter('counties-highlighted', ['==', 'COUNTY', feature.properties.COUNTY]);
