@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>Mapbox — Highlight by US County</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel='stylesheet prefetch' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css'>
+
+      <link rel="stylesheet" href="css/style.css">
+
+  
+</head>
+
+<body>
+  <script src="https://www.gstatic.com/firebasejs/3.5.2/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBlpoVpxbvZovccyOTBU2EVou1sag4H38k",
+    authDomain: "geographic-database.firebaseapp.com",
+    databaseURL: "https://geographic-database.firebaseio.com",
+    storageBucket: "",
+    messagingSenderId: "539666444343"
+  };
+  firebase.initializeApp(config);
+</script>
+
+<div id='map'></div>
+
+<div id='map-overlay' class='map-overlay'></div>
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.js'></script>
+<script src='http://www.roblabs.com/mapboxgl.accessToken.js'></script>
+
+      <script src="js/index.js"></script>
+
+</body>
+</html>
