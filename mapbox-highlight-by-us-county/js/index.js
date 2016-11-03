@@ -9,6 +9,7 @@ var geojson = featureCollection([]);
 var FIPS = [];
 var baseFilter = ['in', 'FIPS'];
 var currentColor = "#ffffcc";
+var byColor;
 
 var paletteColors = [
   '#ffffcc',
@@ -59,8 +60,10 @@ map.on('load', function() {
   }, 'place-city-sm'); // Place polygon under these labels.
 
   paletteColors.forEach(function(color) {
-    map.addLayer(addLayer(color), 'place-city-sm'); // Place polygon under these labels.)
+    lay = addLayer(color);
+    map.addLayer(lay, 'place-city-sm'); // Place polygon under these labels.)
   });
+
 
   map.addLayer({
     "id": "counties-highlighted",
@@ -86,10 +89,24 @@ map.on('load', function() {
       //   so simplifiy the name by extracting the data by the name of 'geojson'
       geojson = databaseObject.geojson;
       console.log(geojson);
-      countyFilter = getFIPS(geojson);
-      map.setFilter('counties-highlighted', countyFilter);
-    }
+      byColor = getFIPSByColor(geojson);
+      console.log(byColor);
 
+      byColor.forEach(function(colorRow) {
+        color = colorRow.color;
+        console.log(color);
+        rawCurrentColor = rawColorValue(color);
+        layer = 'counties-highlighted-' + rawCurrentColor;
+
+        filter = baseFilter;
+        filter = filter.concat(colorRow.FIPS);
+        console.log(layer);
+        console.log(filter);
+
+        map.setFilter(layer, filter);
+        map.setPaintProperty(layer, 'fill-color', color);
+      });
+    }
   });
 
   map.on('click', function(e) {
@@ -104,16 +121,24 @@ map.on('load', function() {
     f.properties["fill-color"] = currentColor;
     f.properties.FIPS = features[0].properties.FIPS;
 
+    rawCurrentColor = rawColorValue(currentColor);
+    layer = 'counties-highlighted-' + rawCurrentColor;
+
     // add the new clicked feature to the geojson
     geojson = updateGeojson(geojson, f);
+
+    // // set the colors based on the data
+    // fips = getFips();
+    // console.log("onclick fips = ");
+    // console.log(fips);
+
+    map.setFilter(layer, filter);
+    map.setPaintProperty(layer, 'fill-color', currentColor);
 
     // update the database
     firebase.database().ref(databaseEndpoint).set({
       geojson: geojson
     });
-
-    // set the colors based on the data
-    fips = getFips();
 
     // var county = features[0].properties.FIPS;
     //     // if does not contain then push
@@ -238,6 +263,7 @@ function getFIPSByColor(geojson) {
       colors.push(fillColor);
     }
   }
+  console.log("getFIPSByColor(), unique colors in geojson");
   console.log(colors);
 
   // now iterate overall features, again, to add FIPS
@@ -280,10 +306,8 @@ function findByColor(colors, findColor) {
 function getFips() {
   // set the colors based on the data
   byColor = getFIPSByColor(geojson);
-  console.log(byColor);
 
   fips = findByColor(byColor, currentColor);
-  console.log(fips);
 
   filter = baseFilter;
   filter = filter.concat(fips);
@@ -306,15 +330,14 @@ paletteColors.forEach(function(color) {
 
     currentColor = color;
     console.log("currentColor = " + currentColor);
-    getFips();
 
-    rawCurrentColor = rawColorValue(currentColor);
-    layer = 'counties-highlighted-' + rawCurrentColor;
+    //     rawCurrentColor = rawColorValue(currentColor);
+    //     layer = 'counties-highlighted-' + rawCurrentColor;
 
-    map.setFilter(layer, filter);
-    map.setPaintProperty(layer, 'fill-color', currentColor);
+    //     map.setFilter(layer, filter);
+    //     map.setPaintProperty(layer, 'fill-color', currentColor);
   });
-    swatches.appendChild(swatch);
+  swatches.appendChild(swatch);
 
 });
 
