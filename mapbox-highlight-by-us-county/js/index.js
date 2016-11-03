@@ -1,12 +1,29 @@
+/*jshint esversion: 6 */
 console.clear();
 
 var database = firebase.database();
 var filter;
-var databaseEndpoint = 'foo/';
+var databaseEndpoint = '/';
 
+var geojson = featureCollection([]);
 var FIPS = [];
 var baseFilter = ['in', 'FIPS'];
+var currentColor = "#ffffcc";
 
+var paletteColors = [
+  '#ffffcc',
+  '#a1dab4',
+  '#41b6c4',
+  '#2c7fb8',
+  '#253494',
+  '#fed976',
+  '#feb24c',
+  '#fd8d3c',
+  '#f03b20',
+  '#bd0026'
+];
+
+// Mapbox map
 var map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/mapbox/streets-v9',
@@ -41,14 +58,18 @@ map.on('load', function() {
     }
   }, 'place-city-sm'); // Place polygon under these labels.
 
+  paletteColors.forEach(function(color) {
+    map.addLayer(addLayer(color), 'place-city-sm'); // Place polygon under these labels.)
+  });
+
   map.addLayer({
     "id": "counties-highlighted",
     "type": "fill",
     "source": "counties",
     "source-layer": "original",
     "paint": {
-      "fill-outline-color": "#484896",
-      "fill-color": "#6e599f",
+      "fill-outline-color": "#888888",
+      "fill-color": currentColor,
       "fill-opacity": 0.75
     },
     "filter": ["in", "COUNTY", ""]
@@ -57,54 +78,53 @@ map.on('load', function() {
   // Database
   var databaseObject = [];
   var starCountRef = firebase.database().ref(databaseEndpoint);
-  starCountRef.on('value', function(snapshot) {
-    console.log(snapshot.val());
+  starCountRef.once('value', function(snapshot) {
 
-    if (snapshot.val() != null) {
+    if (snapshot.val() !== null) {
       databaseObject = snapshot.val();
-      console.log(databaseObject);
-      console.log(databaseObject.filter);
-      filter = databaseObject.filter;
-      console.log(filter);
-
-      map.setFilter('counties-highlighted', filter);
-    } else {
-
-    this.filter = baseFilter;
-    console.log(filter);
+      // the endpoint, or name of the object in the database is 'geojson/'
+      //   so simplifiy the name by extracting the data by the name of 'geojson'
+      geojson = databaseObject.geojson;
+      console.log(geojson);
+      countyFilter = getFIPS(geojson);
+      map.setFilter('counties-highlighted', countyFilter);
     }
 
   });
 
   map.on('click', function(e) {
+    console.log('click');
 
-    console.log(e.point);
     var features = map.queryRenderedFeatures(e.point, {
       layers: ['counties']
     });
-    console.log(e.lngLat);
-    console.log(features[0]);
-    var county = features[0].properties.FIPS;
-    console.log(features[0].properties);
+    // console.log(e.lngLat);
+    f = feature([e.lngLat.lng, e.lngLat.lat]);
 
-    // if does not contain then push
-    console.log(county);
-    console.log(filter);
-    if (filter.indexOf(county) === -1) {
-      console.log("adding county");
-      filter = filter.concat(county);
-    } else {
-      // if contains then splice that index out
-      var deleteCount = 1;
-      filter.splice(filter.indexOf(county), deleteCount);
-    }
-    console.log(filter);
-    map.setFilter('counties-highlighted', filter);
+    f.properties["fill-color"] = currentColor;
+    f.properties.FIPS = features[0].properties.FIPS;
 
+    // add the new clicked feature to the geojson
+    geojson = updateGeojson(geojson, f);
+
+    // update the database
     firebase.database().ref(databaseEndpoint).set({
-      filter: filter
+      geojson: geojson
     });
 
+    // set the colors based on the data
+    fips = getFips();
+
+    // var county = features[0].properties.FIPS;
+    //     // if does not contain then push
+    //     if (filter.indexOf(county) === -1) {
+    //       console.log("adding county");
+    //       filter = filter.concat(county);
+    //     } else {
+    //       // if contains then splice that index out
+    //       var deleteCount = 1;
+    //       filter.splice(filter.indexOf(county), deleteCount);
+    //     }
   });
 
   map.on('mousemove', function(e) {
@@ -119,7 +139,7 @@ map.on('load', function() {
     if (!features.length) {
       popup.remove();
       // map.setFilter('counties-highlighted', ['in', 'COUNTY', '']);
-      overlay.style.display = 'none';
+      // overlay.style.display = 'none';
       return;
     }
 
@@ -134,7 +154,7 @@ map.on('load', function() {
     });
 
     // Render found features in an overlay.
-    overlay.innerHTML = '';
+    // overlay.innerHTML = '';
 
     //     var title = document.createElement('strong');
     //     title.textContent = feature.properties.COUNTY;
@@ -151,3 +171,179 @@ map.on('load', function() {
       .addTo(map);
   });
 });
+
+// GeoJson objects
+
+// main geojson key
+function featureCollection(f) {
+  return {
+    type: 'FeatureCollection',
+    features: f
+  };
+}
+
+// generate a geojson feature
+function feature(geom) {
+  return {
+    type: 'Feature',
+    geometry: geom,
+    properties: properties()
+  };
+}
+
+//  expects [longitude, latitude]
+function point(coordinates) {
+  return {
+    type: 'Point',
+    coordinates: coordinates
+  };
+}
+
+// fill in the properites keys/values here
+function properties() {
+  return {
+    "fill-color": "#ff0000",
+    "tags": "",
+    "FIPS": null
+  };
+}
+
+function updateGeojson(geoJsonObject, feature) {
+
+  var features = geoJsonObject.features;
+  features.push(feature);
+
+  return featureCollection(features);
+}
+
+function getFIPS(geojson) {
+  let filter = ['in', 'FIPS'];
+  for (let f of geojson.features) {
+    filter.push(f.properties.FIPS);
+  }
+  return filter;
+}
+
+function getFIPSByColor(geojson) {
+
+  value = [];
+  colors = [];
+
+  // first create an array, pushing only unique colors
+  for (var f of geojson.features) {
+    fillColor = f.properties['fill-color'];
+
+    // add only unique colors to this array
+    if (colors.indexOf(fillColor) == -1) {
+      colors.push(fillColor);
+    }
+  }
+  console.log(colors);
+
+  // now iterate overall features, again, to add FIPS
+  for (var c of colors) {
+    uniqueFips = [];
+
+    for (var ff of geojson.features) {
+      fillColor = ff.properties['fill-color'];
+      FIPS = ff.properties.FIPS;
+
+      if (c == fillColor) {
+        // color exists, so push only the FIPS value
+        uniqueFips.push(FIPS);
+      }
+    }
+
+    colorFIPS = {
+      color: '#123456',
+      FIPS: []
+    };
+
+    colorFIPS.color = c;
+    colorFIPS.FIPS = uniqueFips;
+
+    value.push(colorFIPS);
+  }
+
+  return value;
+}
+
+function findByColor(colors, findColor) {
+  for (var c of colors) {
+    if (findColor == c.color) {
+      return c.FIPS;
+      break;
+    }
+  }
+}
+
+function getFips() {
+  // set the colors based on the data
+  byColor = getFIPSByColor(geojson);
+  console.log(byColor);
+
+  fips = findByColor(byColor, currentColor);
+  console.log(fips);
+
+  filter = baseFilter;
+  filter = filter.concat(fips);
+
+  return fips;
+}
+
+////
+/// color picker
+////
+
+var swatches = document.getElementById('swatches');
+// var layer = document.getElementById('layer');
+
+paletteColors.forEach(function(color) {
+
+  var swatch = document.createElement('button');
+  swatch.style.backgroundColor = color;
+  swatch.addEventListener('click', function() {
+
+    currentColor = color;
+    console.log("currentColor = " + currentColor);
+    getFips();
+
+    rawCurrentColor = rawColorValue(currentColor);
+    layer = 'counties-highlighted-' + rawCurrentColor;
+
+    map.setFilter(layer, filter);
+    map.setPaintProperty(layer, 'fill-color', currentColor);
+  });
+    swatches.appendChild(swatch);
+
+});
+
+function rawColorValue(color) {
+  // color looks like #123456
+  //   strip off the '#'
+  return color.split('#')[1];
+}
+
+function addLayer(color) {
+
+  var colorValue = rawColorValue(color);
+
+  var layer = {
+    "id": "counties-highlighted-" + colorValue,
+    "type": "fill",
+    "source": "counties",
+    "source-layer": "original",
+    "paint": {
+      "fill-outline-color": "#888888",
+      "fill-color": color,
+      "fill-opacity": 0.75
+    },
+    "filter": [
+      "in",
+      "COUNTY",
+      ""
+    ]
+  };
+
+  return layer;
+}
