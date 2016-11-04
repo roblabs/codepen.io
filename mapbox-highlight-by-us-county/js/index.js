@@ -3,12 +3,11 @@ console.clear();
 
 var database = firebase.database();
 var filter;
-var databaseEndpoint = '/';
+var databaseEndpoint = '/production/';
 
 var geojson = featureCollection([]);
 var FIPS = [];
 var baseFilter = ['in', 'FIPS'];
-var currentColor = "#ffffcc";
 var byColor;
 
 var paletteColors = [
@@ -23,6 +22,8 @@ var paletteColors = [
   '#f03b20',
   '#bd0026'
 ];
+
+var currentColor = paletteColors[0];
 
 // Mapbox map
 var map = new mapboxgl.Map({
@@ -64,19 +65,6 @@ map.on('load', function() {
     map.addLayer(lay, 'place-city-sm'); // Place polygon under these labels.)
   });
 
-  map.addLayer({
-    "id": "counties-highlighted",
-    "type": "fill",
-    "source": "counties",
-    "source-layer": "original",
-    "paint": {
-      "fill-outline-color": "#888888",
-      "fill-color": currentColor,
-      "fill-opacity": 0.75
-    },
-    "filter": ["in", "COUNTY", ""]
-  }, 'place-city-sm'); // Place polygon under these labels.
-
   // Database
   var databaseObject = [];
   var starCountRef = firebase.database().ref(databaseEndpoint);
@@ -89,7 +77,6 @@ map.on('load', function() {
       geojson = databaseObject.geojson;
 
       setPaintColors(geojson);
-
     }
   });
 
@@ -99,12 +86,14 @@ map.on('load', function() {
     var features = map.queryRenderedFeatures(e.point, {
       layers: ['counties']
     });
-    // console.log(e.lngLat);
+
+    // Create a new GeoJson feature and properties
     f = feature([e.lngLat.lng, e.lngLat.lat]);
 
     f.properties["fill-color"] = currentColor;
     f.properties.FIPS = features[0].properties.FIPS;
 
+    // compute the color layer to be updated
     rawCurrentColor = rawColorValue(currentColor);
     layer = 'counties-highlighted-' + rawCurrentColor;
 
@@ -118,16 +107,6 @@ map.on('load', function() {
       geojson: geojson
     });
 
-    // var county = features[0].properties.FIPS;
-    //     // if does not contain then push
-    //     if (filter.indexOf(county) === -1) {
-    //       console.log("adding county");
-    //       filter = filter.concat(county);
-    //     } else {
-    //       // if contains then splice that index out
-    //       var deleteCount = 1;
-    //       filter.splice(filter.indexOf(county), deleteCount);
-    //     }
   });
 
   map.on('mousemove', function(e) {
@@ -156,6 +135,7 @@ map.on('load', function() {
       filter: ['in', 'COUNTY', feature.properties.COUNTY]
     });
 
+    // TODO update tags here
     // Render found features in an overlay.
     // overlay.innerHTML = '';
 
@@ -236,6 +216,7 @@ function properties() {
 
 function updateGeojson(geoJsonObject, feature) {
 
+  // TODO check if feature already exists by comparing county FIPS list
   var features = geoJsonObject.features;
   features.push(feature);
 
