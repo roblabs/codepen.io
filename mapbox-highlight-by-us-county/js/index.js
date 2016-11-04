@@ -64,7 +64,6 @@ map.on('load', function() {
     map.addLayer(lay, 'place-city-sm'); // Place polygon under these labels.)
   });
 
-
   map.addLayer({
     "id": "counties-highlighted",
     "type": "fill",
@@ -88,24 +87,9 @@ map.on('load', function() {
       // the endpoint, or name of the object in the database is 'geojson/'
       //   so simplifiy the name by extracting the data by the name of 'geojson'
       geojson = databaseObject.geojson;
-      console.log(geojson);
-      byColor = getFIPSByColor(geojson);
-      console.log(byColor);
 
-      byColor.forEach(function(colorRow) {
-        color = colorRow.color;
-        console.log(color);
-        rawCurrentColor = rawColorValue(color);
-        layer = 'counties-highlighted-' + rawCurrentColor;
+      setPaintColors(geojson);
 
-        filter = baseFilter;
-        filter = filter.concat(colorRow.FIPS);
-        console.log(layer);
-        console.log(filter);
-
-        map.setFilter(layer, filter);
-        map.setPaintProperty(layer, 'fill-color', color);
-      });
     }
   });
 
@@ -127,13 +111,7 @@ map.on('load', function() {
     // add the new clicked feature to the geojson
     geojson = updateGeojson(geojson, f);
 
-    // // set the colors based on the data
-    // fips = getFips();
-    // console.log("onclick fips = ");
-    // console.log(fips);
-
-    map.setFilter(layer, filter);
-    map.setPaintProperty(layer, 'fill-color', currentColor);
+    setPaintColors(geojson);
 
     // update the database
     firebase.database().ref(databaseEndpoint).set({
@@ -196,6 +174,29 @@ map.on('load', function() {
       .addTo(map);
   });
 });
+
+/////
+function setPaintColors(geojson) {
+
+  byColor = getFIPSByColor(geojson);
+  console.log(byColor);
+
+  byColor.forEach(function(colorRow) {
+    color = colorRow.color;
+    console.log(color);
+    rawCurrentColor = rawColorValue(color);
+    layer = 'counties-highlighted-' + rawCurrentColor;
+
+    filter = baseFilter;
+    filter = filter.concat(colorRow.FIPS);
+    console.log(layer);
+    console.log(filter);
+
+    map.setFilter(layer, filter);
+    map.setPaintProperty(layer, 'fill-color', color);
+  });
+}
+/////
 
 // GeoJson objects
 
