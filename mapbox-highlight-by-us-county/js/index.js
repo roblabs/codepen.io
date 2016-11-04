@@ -159,18 +159,23 @@ map.on('load', function() {
 function setPaintColors(geojson) {
 
   byColor = getFIPSByColor(geojson);
-  console.log(byColor);
+  
+  // Special case when trying to remove the 'last' county
+  if(byColor.length == 0) {
+    filter = baseFilter;
+    filter = filter.concat('[ ]');
+    map.setFilter(layer, filter);
+    return;
+  }
+  
 
   byColor.forEach(function(colorRow) {
     color = colorRow.color;
-    console.log(color);
     rawCurrentColor = rawColorValue(color);
     layer = 'counties-highlighted-' + rawCurrentColor;
 
     filter = baseFilter;
     filter = filter.concat(colorRow.FIPS);
-    console.log(layer);
-    console.log(filter);
 
     map.setFilter(layer, filter);
     map.setPaintProperty(layer, 'fill-color', color);
@@ -218,16 +223,35 @@ function updateGeojson(geoJsonObject, feature) {
 
   // TODO check if feature already exists by comparing county FIPS list
   var features = geoJsonObject.features;
-  features.push(feature);
+  fips = getFIPS(geoJsonObject);
+
+  // See if the new county (FIPS number) is already in our database
+  fipsIndex = fips.indexOf(feature.properties.FIPS);
+
+  if (fipsIndex == -1) { // check if does not exist
+    features.push(feature);
+  } else {
+    filtered = geojson.features.filter(function removeFIPS(value) {
+      return value.properties.FIPS != feature.properties.FIPS;
+    });
+
+    features = filtered;
+  }
 
   return featureCollection(features);
 }
 
 function getFIPS(geojson) {
   let filter = ['in', 'FIPS'];
+
+  if (geojson.features.length == 0) {
+    return filter;
+  }
+
   for (let f of geojson.features) {
     filter.push(f.properties.FIPS);
   }
+
   return filter;
 }
 
@@ -245,8 +269,6 @@ function getFIPSByColor(geojson) {
       colors.push(fillColor);
     }
   }
-  console.log("getFIPSByColor(), unique colors in geojson");
-  console.log(colors);
 
   // now iterate overall features, again, to add FIPS
   for (var c of colors) {
@@ -309,15 +331,7 @@ paletteColors.forEach(function(color) {
   var swatch = document.createElement('button');
   swatch.style.backgroundColor = color;
   swatch.addEventListener('click', function() {
-
     currentColor = color;
-    console.log("currentColor = " + currentColor);
-
-    //     rawCurrentColor = rawColorValue(currentColor);
-    //     layer = 'counties-highlighted-' + rawCurrentColor;
-
-    //     map.setFilter(layer, filter);
-    //     map.setPaintProperty(layer, 'fill-color', currentColor);
   });
   swatches.appendChild(swatch);
 
