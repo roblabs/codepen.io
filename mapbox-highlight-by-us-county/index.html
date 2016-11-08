@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <link rel='stylesheet prefetch' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css'>
+<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
+<link rel='stylesheet prefetch' href='https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'>
 
       <link rel="stylesheet" href="css/style.css">
 
@@ -29,17 +31,24 @@
 <div id='map'></div>
 
 <div class='map-overlay top'>
-    <div class='map-overlay-inner'>
-        <fieldset>
-            <label>Choose a color</label>
-            <div id='swatches'></div>
-        </fieldset>
-    </div>
+  <div class='map-overlay-inner'>
+    <fieldset>
+      <div class="bs-example">
+        <input type="text" value="pfTag1,pfTag2" data-role="tagsinput" />
+      </div>
+      <hr>
+      <label>Choose a color</label>
+      <div id='swatches'></div>
+    </fieldset>
+  </div>
 </div>
   <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js'></script>
+<script src='https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js'></script>
 <script src='http://www.roblabs.com/mapboxgl.accessToken.js'></script>
 
-      <script src="js/index.js"></script>
+    <script src="js/index.js"></script>
 
 </body>
 </html>

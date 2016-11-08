@@ -7,6 +7,7 @@ var databaseEndpoint = '/production/';
 
 var geojson = featureCollection([]);
 var FIPS = [];
+var tags = [];
 var baseFilter = ['in', 'FIPS'];
 var byColor;
 
@@ -92,6 +93,10 @@ map.on('load', function() {
 
     f.properties["fill-color"] = currentColor;
     f.properties.FIPS = features[0].properties.FIPS;
+    f.properties.name = features[0].properties.COUNTY;
+    
+    // TODO — check current tags, change if its different
+    f.properties.tags = tags;
 
     // compute the color layer to be updated
     rawCurrentColor = rawColorValue(currentColor);
@@ -159,15 +164,14 @@ map.on('load', function() {
 function setPaintColors(geojson) {
 
   byColor = getFIPSByColor(geojson);
-  
+
   // Special case when trying to remove the 'last' county
-  if(byColor.length == 0) {
+  if (byColor.length == 0) {
     filter = baseFilter;
     filter = filter.concat('[ ]');
     map.setFilter(layer, filter);
     return;
   }
-  
 
   byColor.forEach(function(colorRow) {
     color = colorRow.color;
@@ -215,7 +219,9 @@ function properties() {
   return {
     "fill-color": "#ff0000",
     "tags": "",
-    "FIPS": null
+    "FIPS": null,
+    "name": "",
+    "tags": tags
   };
 }
 
@@ -366,3 +372,27 @@ function addLayer(color) {
 
   return layer;
 }
+
+// jQuery
+$(function() {
+  $('input').on('change', function(event) {
+
+    var $element = $(event.target);
+    var $container = $element.closest('.example');
+
+    if (!$element.data('tagsinput'))
+      return;
+
+    var val = $element.val();
+    if (val === null)
+      val = "null";
+    var items = $element.tagsinput('items');
+    // set the global tracking variable for tags
+    tags = items;
+
+    console.log(items);
+    console.log(JSON.stringify(items));
+    console.log(items[items.length - 1]);
+
+  }).trigger('change');
+});
