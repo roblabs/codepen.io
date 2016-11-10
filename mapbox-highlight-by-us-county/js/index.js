@@ -78,6 +78,8 @@ map.on('load', function() {
       geojson = databaseObject.geojson;
 
       setPaintColors(geojson);
+    } else { // data base is empty
+      geojson = featureCollection([]);
     }
   });
 
@@ -89,14 +91,14 @@ map.on('load', function() {
     });
 
     // Create a new GeoJson feature and properties
-    f = feature([e.lngLat.lng, e.lngLat.lat]);
+    let p = point([e.lngLat.lng, e.lngLat.lat]);
+    let f = feature(p);
 
+    t = $("input[name='tags']").tagsinput('items');
+    f.properties.tags = t.toString();
     f.properties["fill-color"] = currentColor;
     f.properties.FIPS = features[0].properties.FIPS;
     f.properties.name = features[0].properties.COUNTY;
-    
-    // TODO — check current tags, change if its different
-    f.properties.tags = tags;
 
     // compute the color layer to be updated
     rawCurrentColor = rawColorValue(currentColor);
@@ -161,9 +163,9 @@ map.on('load', function() {
 });
 
 /////
-function setPaintColors(geojson) {
+function setPaintColors(geoJsonObject) {
 
-  byColor = getFIPSByColor(geojson);
+  byColor = getFIPSByColor(geoJsonObject);
 
   // Special case when trying to remove the 'last' county
   if (byColor.length == 0) {
@@ -220,8 +222,7 @@ function properties() {
     "fill-color": "#ff0000",
     "tags": "",
     "FIPS": null,
-    "name": "",
-    "tags": tags
+    "name": ""
   };
 }
 
@@ -237,7 +238,7 @@ function updateGeojson(geoJsonObject, feature) {
   if (fipsIndex == -1) { // check if does not exist
     features.push(feature);
   } else {
-    filtered = geojson.features.filter(function removeFIPS(value) {
+    filtered = geoJsonObject.features.filter(function removeFIPS(value) {
       return value.properties.FIPS != feature.properties.FIPS;
     });
 
@@ -247,27 +248,27 @@ function updateGeojson(geoJsonObject, feature) {
   return featureCollection(features);
 }
 
-function getFIPS(geojson) {
+function getFIPS(geoJsonObject) {
   let filter = ['in', 'FIPS'];
 
-  if (geojson.features.length == 0) {
+  if (geoJsonObject.features.length == 0) {
     return filter;
   }
 
-  for (let f of geojson.features) {
+  for (let f of geoJsonObject.features) {
     filter.push(f.properties.FIPS);
   }
 
   return filter;
 }
 
-function getFIPSByColor(geojson) {
+function getFIPSByColor(geoJsonObject) {
 
   value = [];
   colors = [];
 
   // first create an array, pushing only unique colors
-  for (var f of geojson.features) {
+  for (var f of geoJsonObject.features) {
     fillColor = f.properties['fill-color'];
 
     // add only unique colors to this array
@@ -280,7 +281,7 @@ function getFIPSByColor(geojson) {
   for (var c of colors) {
     uniqueFips = [];
 
-    for (var ff of geojson.features) {
+    for (var ff of geoJsonObject.features) {
       fillColor = ff.properties['fill-color'];
       FIPS = ff.properties.FIPS;
 
@@ -387,12 +388,6 @@ $(function() {
     if (val === null)
       val = "null";
     var items = $element.tagsinput('items');
-    // set the global tracking variable for tags
-    tags = items;
-
-    console.log(items);
-    console.log(JSON.stringify(items));
-    console.log(items[items.length - 1]);
 
   }).trigger('change');
 });
