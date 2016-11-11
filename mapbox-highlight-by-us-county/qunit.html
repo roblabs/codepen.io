@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>QUnit sample</title>
+
+
+  <link rel='stylesheet prefetch' href='https://code.jquery.com/qunit/qunit-2.0.1.css'>
+  <link rel='stylesheet prefetch' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css'>
+<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
+<link rel='stylesheet prefetch' href='https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'>
+
+
+
+
+</head>
+
+<body>
+  <div id="qunit"></div>
+  <script src="js/index.js"></script>
+  <script src='https://code.jquery.com/qunit/qunit-2.0.1.js'></script>
+
+<script src="js/qunit.js"></script>
+
+<script>
+
+QUnit.module("beforeEach", {
+    beforeEach: function() {
+
+    }
+});
+
+
+QUnit.test("geojson tests", function( assert ) {
+  assert.expect(0);
+
+  // test creating empty feature collection
+  collection = featureCollection([]);
+  console.log(collection.toSource());
+
+  p = point([1.2, 2.3]);
+  f = feature(p);
+  f.properties = properties();
+  f.properties.FIPS = "12345";
+  f.properties["fill-color"] = "#012345";
+  f.properties.name = "Lincoln County";
+  f.properties.tags = [];
+  collection = updateGeojson(collection, f);
+  console.log(collection.toSource());
+
+  console.log("test adding a feature via method call");
+  p = point([9.8, 7.6]);
+  f = feature(p);
+  f.properties = properties();
+  f.properties.FIPS = "98765";
+  f.properties["fill-color"] = "#098765";
+  f.properties.name = "Washoe County";
+  f.properties.tags = ["tag1", "tag2"];
+  collection = updateGeojson(collection, f);
+  console.log(collection.toSource());
+
+  console.log();
+
+  console.log("Now see if you can change the color");
+  p = point([1.9, 2.8]);
+  f = feature(p);
+  f.properties = properties();
+  f.properties.FIPS = "98765";
+  f.properties["fill-color"] = "#ffffff";
+  collection = updateGeojson(collection, f);
+  console.log(collection.toSource());
+
+  console.log("test adding a feature that already exists with same color");
+  //  This will remove "Washoe County" from the list
+  p = point([5.4, 7.6]);
+  f = feature(p);
+  f.properties = properties();
+  f.properties.FIPS = "98765";
+  f.properties["fill-color"] = "#ffffff";
+  f.properties.name = "Washoe County";
+  collection = updateGeojson(collection, f);
+  console.log(collection.toSource());
+
+
+});
+
+
+function logFillColor(g) {
+  console.log();
+  console.log("logFillColor");
+  for (let f of g.features) {
+    console.log(f.properties["fill-color"]);
+  }
+}
+
+function logTags(g) {
+  console.log();
+  console.log("logTags");
+  for (let f of g.features) {
+    console.log(f.properties.tags);
+  }
+}
+
+
+</script>
+
+
+</body>
+</html>
