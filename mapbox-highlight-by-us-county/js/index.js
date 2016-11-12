@@ -101,6 +101,14 @@ map.on('load', function() {
     FEATURE.properties.FIPS = features[0].properties.FIPS;
     FEATURE.properties.name = features[0].properties.COUNTY;
 
+    // compare geojson for the current FIPS value, then extract the tags to update the UI
+    indexOfFIPS = getFIPSByMap(geojson, FEATURE);
+    if (indexOfFIPS != -1) {
+      let tags = geojson.features[indexOfFIPS].properties.tags;
+      $("input[name='tags']").tagsinput('removeAll');
+      $("input[name='tags']").tagsinput('add', tags);
+    }
+
     $(".county").html(FEATURE.properties.name);
 
   });
