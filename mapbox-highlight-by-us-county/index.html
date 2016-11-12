@@ -2,7 +2,7 @@
 <html >
 <head>
   <meta charset="UTF-8">
-  <title>Mapbox — Highlight by US County</title>
+  <title>New UI Mapbox — Highlight by US County</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
   <link rel='stylesheet prefetch' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css'>
@@ -33,12 +33,16 @@
 <div class='map-overlay top'>
   <div class='map-overlay-inner'>
     <fieldset>
+      <div class="county">County</div>
+      <hr>
       <div class="bs-example">
-        <input type="text" value="pfTag1,pfTag2" data-role="tagsinput" />
+        <input type="text" name="tags" value="pfTag1,pfTag2" data-role="tagsinput" />
       </div>
       <hr>
+      <div id='overlay'>
       <label>Choose a color</label>
       <div id='swatches'></div>
+      </div>
     </fieldset>
   </div>
 </div>

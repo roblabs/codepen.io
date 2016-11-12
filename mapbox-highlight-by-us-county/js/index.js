@@ -3,7 +3,7 @@ console.clear();
 
 var database = firebase.database();
 var filter;
-var databaseEndpoint = '/beta/';
+var databaseEndpoint = '/production/';
 
 var geojson = featureCollection([]);
 var FEATURE = null; // create empty feature
@@ -342,8 +342,15 @@ paletteColors.forEach(function(color) {
     FEATURE.properties.tags = t.toString();
     FEATURE.properties["fill-color"] = color;
 
+    // Create local copy, and pass that by value rather than the global
+    p = point([FEATURE.geometry.coordinates[0], FEATURE.geometry.coordinates[1]]);
+    f = feature(p);
+    f.properties.FIPS = FEATURE.properties.FIPS;
+    f.properties["fill-color"] = color;
+    f.properties.name = FEATURE.properties.name;
+    f.properties.tags = FEATURE.properties.tags;
     // add the new clicked feature to the geojson
-    geojson = updateGeojson(geojson, FEATURE);
+    geojson = updateGeojson(geojson, f);
 
     rawCurrentColor = rawColorValue(color);
     layer = 'counties-highlighted-' + rawCurrentColor;

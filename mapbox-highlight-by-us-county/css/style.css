@@ -41,6 +41,12 @@ body {
     width: 100%;
 }
 
+.map-overlay-inner .county {
+    display: block;
+    font-weight: bold;
+    margin: 0 0 5px;
+}
+
 .map-overlay-inner label {
     display: block;
     font-weight: bold;
