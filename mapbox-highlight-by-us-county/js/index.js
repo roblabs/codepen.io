@@ -3,7 +3,7 @@ console.clear();
 
 var database = firebase.database();
 var filter;
-var databaseEndpoint = '/production/';
+var databaseEndpoint = '/beta/';
 
 var geojson = featureCollection([]);
 var FEATURE = null; // create empty feature
@@ -250,38 +250,6 @@ function getFIPSByMap(geoJsonObject, feat) {
   let features = geoJsonObject.features;
   let indexOfFIPS = -1;
 
-  let parsed = {
-    "something": {
-      "terms": [{
-        "span": [
-          15,
-          16
-        ],
-        "value": ":",
-        "label": "separator"
-      }, {
-        "span": [
-          16,
-          20
-        ],
-        "value": "12.5",
-        "label": "number"
-      }],
-      "span": [
-        15,
-        20
-      ],
-      "weight": 0.005,
-      "value": ":12.5"
-    }
-  };
-
-  var numberValue = parsed.something.terms
-    .map(function(d) {
-      return d['label'];
-    })
-    .indexOf('number');
-
   indexOfFIPS = features
     .map(function(v) {
       return v.properties.FIPS;
@@ -289,20 +257,6 @@ function getFIPSByMap(geoJsonObject, feat) {
     .indexOf(feat.properties.FIPS);
 
   return indexOfFIPS;
-}
-
-function getFIPS(geoJsonObject) {
-  let filter = ['in', 'FIPS'];
-
-  if (geoJsonObject.features.length == 0) {
-    return filter;
-  }
-
-  for (let f of geoJsonObject.features) {
-    filter.push(f.properties.FIPS);
-  }
-
-  return filter;
 }
 
 function getFIPSByColor(geoJsonObject) {
@@ -357,18 +311,6 @@ function findByColor(colors, findColor) {
   }
 }
 
-function getFips() {
-  // set the colors based on the data
-  byColor = getFIPSByColor(geojson);
-
-  fips = findByColor(byColor, currentColor);
-
-  filter = baseFilter;
-  filter = filter.concat(fips);
-
-  return fips;
-}
-
 ////
 /// color picker
 ////
@@ -382,6 +324,10 @@ paletteColors.forEach(function(color) {
 
   var swatch = document.createElement('button');
   swatch.style.backgroundColor = color;
+
+  swatch.addEventListener('mouseover', function() {
+    console.log(color);
+  });
 
   swatch.addEventListener('click', function() {
 
@@ -402,7 +348,6 @@ paletteColors.forEach(function(color) {
     rawCurrentColor = rawColorValue(color);
     layer = 'counties-highlighted-' + rawCurrentColor;
 
-    console.log("getFIPSByColor" + getFIPSByColor(geojson));
     setPaintColors(geojson);
 
     // update the database
