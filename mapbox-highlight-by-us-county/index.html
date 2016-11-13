@@ -5,7 +5,8 @@
   <title>New UI Mapbox — Highlight by US County</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
-  <link rel='stylesheet prefetch' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.css'>
+  <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap2/bootstrap-switch.min.css'>
+<link rel='stylesheet prefetch' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.27.0/mapbox-gl.css'>
 <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
 <link rel='stylesheet prefetch' href='https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.css'>
 
@@ -32,24 +33,32 @@
 
 <div class='map-overlay top'>
   <div class='map-overlay-inner'>
+
     <fieldset>
-      <div class="county">County</div>
-      <hr>
+      <input type="checkbox" name="city-county-checkbox" data-on-text="City" data-off-text="County" checked data-size="mini">
+    </fieldset>
+
+    <div class="county">County</div>
+
+    <fieldset>
+
       <div class="bs-example">
+        <label>Tags</label>
         <input type="text" name="tags" value="pfTag1,pfTag2" data-role="tagsinput" />
       </div>
-      <hr>
+
       <div id='overlay'>
-      <label>Choose a color</label>
-      <div id='swatches'></div>
+        <label>Apply by color</label>
+        <div id='swatches'></div>
       </div>
     </fieldset>
   </div>
 </div>
-  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.26.0/mapbox-gl.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js'></script>
 <script src='https://bootstrap-tagsinput.github.io/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/js/bootstrap-switch.min.js'></script>
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.27.0/mapbox-gl.js'></script>
 <script src='http://www.roblabs.com/mapboxgl.accessToken.js'></script>
 
     <script src="js/index.js"></script>

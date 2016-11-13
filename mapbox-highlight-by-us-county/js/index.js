@@ -78,11 +78,11 @@ map.on('load', function() {
       //   so simplifiy the name by extracting the data by the name of 'geojson'
       geojson = databaseObject.geojson;
 
-      if(geojson.features !== undefined){
+      if (geojson.features !== undefined) {
         setPaintColors(geojson);
       } else { // data base is NOT empty, but has no features
-      geojson = featureCollection([]);
-    }
+        geojson = featureCollection([]);
+      }
 
     } else { // data base is empty
       geojson = featureCollection([]);
@@ -421,6 +421,9 @@ function addLayer(color) {
 
 // jQuery
 $(function() {
+  
+  $("[name='city-county-checkbox']").bootstrapSwitch();
+  
   $('input').on('change', function(event) {
 
     var $element = $(event.target);
