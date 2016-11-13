@@ -69,8 +69,8 @@ map.on('load', function() {
 
   // Database
   var databaseObject = [];
-  var starCountRef = firebase.database().ref(databaseEndpoint);
-  starCountRef.once('value', function(snapshot) {
+  var rootRef = firebase.database().ref(databaseEndpoint);
+  rootRef.once('value', function(snapshot) {
 
     if (snapshot.val() !== null) {
       databaseObject = snapshot.val();
@@ -78,7 +78,12 @@ map.on('load', function() {
       //   so simplifiy the name by extracting the data by the name of 'geojson'
       geojson = databaseObject.geojson;
 
-      setPaintColors(geojson);
+      if(geojson.features !== undefined){
+        setPaintColors(geojson);
+      } else { // data base is NOT empty, but has no features
+      geojson = featureCollection([]);
+    }
+
     } else { // data base is empty
       geojson = featureCollection([]);
     }
