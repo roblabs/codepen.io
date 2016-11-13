@@ -172,6 +172,18 @@ function setPaintColors(geoJsonObject) {
     return;
   }
 
+  // Remove layers for each color to ensure UI is updated
+  // Then replace each
+  paletteColors.forEach(function(color) {
+    rawCurrentColor = rawColorValue(color);
+    layer = 'counties-highlighted-' + rawCurrentColor;
+    map.removeLayer(layer);
+
+    lay = addLayer(color);
+    map.addLayer(lay, 'place-city-sm'); // Place polygon under these labels.)
+  });
+
+
   byColor.forEach(function(colorRow) {
     color = colorRow.color;
     rawCurrentColor = rawColorValue(color);
@@ -181,7 +193,6 @@ function setPaintColors(geoJsonObject) {
     filter = filter.concat(colorRow.FIPS);
 
     map.setFilter(layer, filter);
-    map.setPaintProperty(layer, 'fill-color', color);
   });
 }
 /////
@@ -360,8 +371,6 @@ paletteColors.forEach(function(color) {
     // add the new clicked feature to the geojson
     geojson = updateGeojson(geojson, f);
 
-    rawCurrentColor = rawColorValue(color);
-    layer = 'counties-highlighted-' + rawCurrentColor;
 
     setPaintColors(geojson);
 
@@ -393,7 +402,6 @@ function addLayer(color) {
     "paint": {
       "fill-outline-color": "#888888",
       "fill-color": color,
-      "fill-opacity": 0.75
     },
     "filter": [
       "in",
