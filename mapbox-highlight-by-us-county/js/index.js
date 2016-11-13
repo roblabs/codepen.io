@@ -1,31 +1,26 @@
-/*jshint esversion: 6 */
+/*jshint esversion: 6 */  /*jslint single*/
 console.clear();
 
+// Firebase
 var database = firebase.database();
-var filter;
 var databaseEndpoint = '/production/';
 
+// GeoJSON objects
 var geojson = featureCollection([]);
 var FEATURE = null; // create empty feature
+
+// FIPS are unique codes for a county
 var FIPS = [];
 var tags = [];
+var filter;
 var baseFilter = ['in', 'FIPS'];
-var byColor;
 
+var colorHighlightedCounty = "#888888";
 var paletteColors = [
-  '#ffffcc',
-  '#a1dab4',
-  '#41b6c4',
-  '#2c7fb8',
-  '#253494',
-  '#fed976',
-  '#feb24c',
-  '#fd8d3c',
-  '#f03b20',
-  '#bd0026'
+  '#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494',
+  '#fed976', '#feb24c', '#fd8d3c', '#f03b20', '#bd0026'
 ];
 
-var currentColor = paletteColors[0];
 
 // Mapbox map
 var map = new mapboxgl.Map({
@@ -109,9 +104,9 @@ map.on('load', function() {
     // compare geojson for the current FIPS value, then extract the tags to update the UI
     indexOfFIPS = getFIPSByMap(geojson, FEATURE);
     if (indexOfFIPS != -1) {
-      let tags = geojson.features[indexOfFIPS].properties.tags;
+      let t = geojson.features[indexOfFIPS].properties.tags;
       $("input[name='tags']").tagsinput('removeAll');
-      $("input[name='tags']").tagsinput('add', tags);
+      $("input[name='tags']").tagsinput('add', t);
     }
 
     $(".county").html(FEATURE.properties.name);
@@ -144,19 +139,6 @@ map.on('load', function() {
       filter: ['in', 'COUNTY', feature.properties.COUNTY]
     });
 
-    // TODO update tags here
-    // Render found features in an overlay.
-    // overlay.innerHTML = '';
-
-    //     var title = document.createElement('strong');
-    //     title.textContent = feature.properties.COUNTY;
-
-    //     overlay.appendChild(title);
-    //     overlay.style.display = 'block';
-
-    // Add features that share the same county name to the highlighted layer.
-    // map.setFilter('counties-highlighted', ['==', 'COUNTY', feature.properties.COUNTY]);
-
     // Display a popup with the name of the county
     popup.setLngLat(e.lngLat)
       .setText(feature.properties.COUNTY)
@@ -170,7 +152,7 @@ function setPaintColors(geoJsonObject) {
   byColor = getFIPSByColor(geoJsonObject);
 
   // Special case when trying to remove the 'last' county
-  if (byColor.length == 0) {
+  if (byColor.length === 0) {
     filter = baseFilter;
     filter = filter.concat('[ ]');
     map.setFilter(layer, filter);
@@ -243,7 +225,7 @@ function updateGeojson(geoJsonObject, feat) {
 
   let ff = geoJsonObject.features;
 
-  if (ff.length == 0) {
+  if (ff.length === 0) {
     ff.push(feat);
     return featureCollection(ff);
   }
@@ -331,7 +313,6 @@ function findByColor(colors, findColor) {
   for (var c of colors) {
     if (findColor == c.color) {
       return c.FIPS;
-      break;
     }
   }
 }
@@ -406,14 +387,10 @@ function addLayer(color) {
     "source": "counties",
     "source-layer": "original",
     "paint": {
-      "fill-outline-color": "#888888",
+      "fill-outline-color": colorHighlightedCounty,
       "fill-color": color,
     },
-    "filter": [
-      "in",
-      "COUNTY",
-      ""
-    ]
+    "filter": baseFilter
   };
 
   return layer;
