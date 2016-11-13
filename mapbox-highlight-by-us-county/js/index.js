@@ -261,8 +261,9 @@ function updateGeojson(geoJsonObject, feat) {
       ff.splice(indexOfFIPS, 1);
     } else {
       // FIPS exists and colors are different, change color
-      console.log("change color");
+      console.log("Update color and possibly tags");
       ff[indexOfFIPS].properties["fill-color"] = feat.properties["fill-color"];
+      ff[indexOfFIPS].properties.tags = feat.properties.tags;
     }
   }
 
