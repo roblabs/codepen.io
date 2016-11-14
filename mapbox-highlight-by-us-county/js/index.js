@@ -1,9 +1,9 @@
-/*jshint esversion: 6 */  /*jslint single*/
+/*jshint esversion: 6 */ /*jslint single*/
 console.clear();
 
 // Firebase
 var database = firebase.database();
-var databaseEndpoint = '/production/';
+var databaseEndpoint = '/beta/';
 
 // GeoJSON objects
 var geojson = featureCollection([]);
@@ -20,7 +20,6 @@ var paletteColors = [
   '#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494',
   '#fed976', '#feb24c', '#fd8d3c', '#f03b20', '#bd0026'
 ];
-
 
 // Mapbox map
 var map = new mapboxgl.Map({
@@ -62,6 +61,9 @@ map.on('load', function() {
     map.addLayer(lay, 'place-city-sm'); // Place polygon under these labels.)
   });
 
+  // Border highlighted layer
+  map.addLayer(addCountyBorderLayer(), 'place-city-sm');
+
   // Database
   var databaseObject = [];
   var rootRef = firebase.database().ref(databaseEndpoint);
@@ -87,19 +89,34 @@ map.on('load', function() {
   map.on('click', function(e) {
     console.log('click');
 
+    let queryFeature;
+    // let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
+    checkbox = false; // TODO hardcode to false = County
+
     // Since we clicked on a new feature, nullify the previous one
     FEATURE = null;
-
-    var features = map.queryRenderedFeatures(e.point, {
-      layers: ['counties']
-    });
 
     // Create a new GeoJson feature and properties
     let p = point([e.lngLat.lng, e.lngLat.lat]);
     FEATURE = feature(p);
 
-    FEATURE.properties.FIPS = features[0].properties.FIPS;
-    FEATURE.properties.name = features[0].properties.COUNTY;
+    //
+    if (checkbox === true) { // City
+      queryFeature = map.queryRenderedFeatures(e.point);
+      FEATURE.properties.name = queryFeature[0].properties.name;
+    } else { // County
+      queryFeature = map.queryRenderedFeatures(e.point, {
+        layers: ['counties']
+      });
+
+      FEATURE.properties.FIPS = queryFeature[0].properties.FIPS;
+      FEATURE.properties.name = queryFeature[0].properties.COUNTY;
+
+      // add border when county is selected
+      filter = baseFilter;
+      filter = filter.concat(FEATURE.properties.FIPS);
+      map.setFilter("county-border", filter);
+    }
 
     // compare geojson for the current FIPS value, then extract the tags to update the UI
     indexOfFIPS = getFIPSByMap(geojson, FEATURE);
@@ -169,7 +186,6 @@ function setPaintColors(geoJsonObject) {
     lay = addLayer(color);
     map.addLayer(lay, 'place-city-sm'); // Place polygon under these labels.)
   });
-
 
   byColor.forEach(function(colorRow) {
     color = colorRow.color;
@@ -289,7 +305,7 @@ function getFIPSByColor(geoJsonObject) {
       fillColor = ff.properties['fill-color'];
       FIPS = ff.properties.FIPS;
 
-      if (c == fillColor) {
+      if (c == fillColor & FIPS !== undefined) {
         // color exists, so push only the FIPS value
         uniqueFips.push(FIPS);
       }
@@ -358,6 +374,9 @@ paletteColors.forEach(function(color) {
     // add the new clicked feature to the geojson
     geojson = updateGeojson(geojson, f);
 
+    // add border when county is DE-selected
+    filter = baseFilter;
+    map.setFilter("county-border", filter);
 
     setPaintColors(geojson);
 
@@ -396,11 +415,28 @@ function addLayer(color) {
   return layer;
 }
 
+function addCountyBorderLayer() {
+
+  var layer = {
+    "id": "county-border",
+    "type": "line",
+    "source": "counties",
+    "source-layer": "original",
+    "paint": {
+      "line-color": "#000000",
+      "line-width": 2
+    },
+    "filter": baseFilter
+  };
+
+  return layer;
+}
+
 // jQuery
 $(function() {
-  
+
   $("[name='city-county-checkbox']").bootstrapSwitch();
-  
+
   $('input').on('change', function(event) {
 
     var $element = $(event.target);
