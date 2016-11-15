@@ -16,10 +16,18 @@ var filter;
 var baseFilter = ['in', 'FIPS'];
 
 var colorHighlightedCounty = "#888888";
+var OPACITY = 0.5;
 var paletteColors = [
   '#ffffcc', '#a1dab4', '#41b6c4', '#2c7fb8', '#253494',
   '#fed976', '#feb24c', '#fd8d3c', '#f03b20', '#bd0026'
 ];
+
+// http://stackoverflow.com/a/36253499
+function hexToRGBA(hex, opacity) {
+  return 'rgba(' + (hex = hex.replace('#', '')).match(new RegExp('(.{' + hex.length / 3 + '})', 'g')).map(function(l) {
+    return parseInt(hex.length % 2 ? l + l : l, 16)
+  }).concat(opacity || 1).join(',') + ')';
+}
 
 // Mapbox map
 var map = new mapboxgl.Map({
@@ -345,7 +353,7 @@ var swatches = document.getElementById('swatches');
 paletteColors.forEach(function(color) {
 
   var swatch = document.createElement('button');
-  swatch.style.backgroundColor = color;
+  swatch.style.backgroundColor = hexToRGBA(color, OPACITY);
 
   swatch.addEventListener('mouseover', function() {
     console.log(color);
@@ -407,7 +415,7 @@ function addLayer(color) {
     "source-layer": "original",
     "paint": {
       "fill-outline-color": colorHighlightedCounty,
-      "fill-color": color,
+      "fill-color": hexToRGBA(color, OPACITY)
     },
     "filter": baseFilter
   };
