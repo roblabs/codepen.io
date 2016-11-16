@@ -382,10 +382,6 @@ paletteColors.forEach(function(color) {
     // add the new clicked feature to the geojson
     geojson = updateGeojson(geojson, f);
 
-    // add border when county is DE-selected
-    filter = baseFilter;
-    map.setFilter("county-border", filter);
-
     setPaintColors(geojson);
 
     // update the database
