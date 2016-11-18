@@ -16,6 +16,9 @@ var tags = [];
 var filter;
 var baseFilter = ['in', 'FIPS'];
 
+// Settings for Constants, colors and timeouts
+var mouseOverDelay = 100; // milliseconds delay before showing popup
+var setTimeoutConst;
 var colorHighlightedCounty = "#888888";
 var OPACITY = 0.5;
 var paletteColors = [
@@ -169,6 +172,8 @@ map.on('load', function() {
   });
 
   map.on('mousemove', function(e) {
+    // Clean up any other popups
+    clearTimeout(setTimeoutConst);
     popup.remove();
 
     var pointFeatures = map.queryRenderedFeatures(e.point, {
@@ -179,9 +184,11 @@ map.on('load', function() {
     // If focus is on a point, then show popup, but exit
     if (pointFeatures.length) {
       var pointFeature = pointFeatures[0];
-      popup.setLngLat(pointFeature.geometry.coordinates)
-        .setText(pointFeature.properties.color + " " + pointFeature.properties.tags)
-        .addTo(map);
+      setTimeoutConst = setTimeout(function(){
+        popup.setLngLat(pointFeature.geometry.coordinates)
+          .setText(pointFeature.properties.color + " " + pointFeature.properties.tags)
+          .addTo(map);
+         }, mouseOverDelay);
 
       return;
     }
@@ -194,10 +201,11 @@ map.on('load', function() {
       // Single out the first found feature on mouseove.
       var feature = features[0];
 
-      // Display a popup with the name of the county
-      popup.setLngLat(e.lngLat)
-        .setText(feature.properties.COUNTY)
-        .addTo(map);
+      setTimeoutConst = setTimeout(function(){
+        popup.setLngLat(e.lngLat)
+          .setText(feature.properties.COUNTY)
+          .addTo(map);
+         }, mouseOverDelay);
     }
 
     // Change the cursor style as a UI indicator.
