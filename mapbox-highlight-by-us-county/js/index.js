@@ -3,10 +3,11 @@ console.clear();
 
 // Firebase
 var database = firebase.database();
-var databaseEndpoint = '/beta/';
+var databaseEndpoint = '/production/';
 
 // GeoJSON objects
 var geojson = featureCollection([]);
+var POINTS = []; // city points
 var FEATURE = null; // create empty feature
 
 // FIPS are unique codes for a county
@@ -25,14 +26,14 @@ var paletteColors = [
 // http://stackoverflow.com/a/36253499
 function hexToRGBA(hex, opacity) {
   return 'rgba(' + (hex = hex.replace('#', '')).match(new RegExp('(.{' + hex.length / 3 + '})', 'g')).map(function(l) {
-    return parseInt(hex.length % 2 ? l + l : l, 16)
+    return parseInt(hex.length % 2 ? l + l : l, 16);
   }).concat(opacity || 1).join(',') + ')';
 }
 
 // Mapbox map
 var map = new mapboxgl.Map({
   container: 'map',
-  style: 'mapbox://styles/mapbox/streets-v9',
+  style: 'mapbox://styles/roblabs/civlfb2h1009g2kpibfezqs4p',
   center: [-98, 38.88],
   minZoom: 2,
   zoom: 3
@@ -64,9 +65,26 @@ map.on('load', function() {
     }
   }, 'place-city-sm'); // Place polygon under these labels.
 
+  map.addSource("points", {
+    "type": "geojson",
+    "data": {
+      "type": "FeatureCollection",
+      "features": []
+    }
+  });
+
+  map.addLayer({
+    "id": "points",
+    "type": "symbol",
+    "source": "points",
+    "layout": {
+      "icon-image": "marker-{color}-15"
+    }
+  });
+
   paletteColors.forEach(function(color) {
     lay = addLayer(color);
-    map.addLayer(lay, 'place-city-sm'); // Place polygon under these labels.)
+    map.addLayer(lay, 'place-city-sm'); // Place polygon under these labels.
   });
 
   // Border highlighted layer
@@ -85,6 +103,9 @@ map.on('load', function() {
 
       if (geojson.features !== undefined) {
         setPaintColors(geojson);
+        POINTS = geojson.features.filter(function(f) {
+          return f.properties.name === "";
+        });
       } else { // data base is NOT empty, but has no features
         geojson = featureCollection([]);
       }
@@ -92,14 +113,13 @@ map.on('load', function() {
     } else { // data base is empty
       geojson = featureCollection([]);
     }
+
+    // Set initial points from the database
+    map.getSource('points').setData(featureCollection(POINTS));
   });
 
   map.on('click', function(e) {
     console.log('click');
-
-    let queryFeature;
-    // let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
-    checkbox = false; // TODO hardcode to false = County
 
     // Since we clicked on a new feature, nullify the previous one
     FEATURE = null;
@@ -108,10 +128,20 @@ map.on('load', function() {
     let p = point([e.lngLat.lng, e.lngLat.lat]);
     FEATURE = feature(p);
 
-    //
+    let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
+
     if (checkbox === true) { // City
-      queryFeature = map.queryRenderedFeatures(e.point);
-      FEATURE.properties.name = queryFeature[0].properties.name;
+
+      // TODO We cannot save any data from the Geocoding calls
+      //   (https://www.mapbox.com/api-documentation/#geocoding)
+      // FEATURE.properties.name = //
+
+      FEATURE.properties["fill-color"] = "#bd0026";
+      FEATURE.properties.color = rawColorValue(FEATURE.properties["fill-color"]);
+
+      // Update the map with new temporary marker by concatenating, not pushing, new marker to POINTS
+      map.getSource('points').setData(featureCollection(POINTS.concat(FEATURE)));
+
     } else { // County
       queryFeature = map.queryRenderedFeatures(e.point, {
         layers: ['counties']
@@ -139,37 +169,43 @@ map.on('load', function() {
   });
 
   map.on('mousemove', function(e) {
+    popup.remove();
+
+    var pointFeatures = map.queryRenderedFeatures(e.point, {
+      layers: ['points']
+    });
+
+    // prioritize on points over areas
+    // If focus is on a point, then show popup, but exit
+    if (pointFeatures.length) {
+      var pointFeature = pointFeatures[0];
+      popup.setLngLat(pointFeature.geometry.coordinates)
+        .setText(pointFeature.properties.color + " " + pointFeature.properties.tags)
+        .addTo(map);
+
+      return;
+    }
+
     var features = map.queryRenderedFeatures(e.point, {
       layers: ['counties']
     });
 
+    if (features.length) {
+      // Single out the first found feature on mouseove.
+      var feature = features[0];
+
+      // Display a popup with the name of the county
+      popup.setLngLat(e.lngLat)
+        .setText(feature.properties.COUNTY)
+        .addTo(map);
+    }
+
     // Change the cursor style as a UI indicator.
     map.getCanvas().style.cursor = features.length ? 'pointer' : '';
 
-    // Remove things if no feature was found.
-    if (!features.length) {
-      popup.remove();
-      // map.setFilter('counties-highlighted', ['in', 'COUNTY', '']);
-      // overlay.style.display = 'none';
-      return;
-    }
+  }); // 'mousemove'
 
-    // Single out the first found feature on mouseove.
-    var feature = features[0];
-
-    // Query the counties layer visible in the map. Use the filter
-    // param to only collect results that share the same county name.
-    var relatedFeatures = map.querySourceFeatures('counties', {
-      sourceLayer: 'original',
-      filter: ['in', 'COUNTY', feature.properties.COUNTY]
-    });
-
-    // Display a popup with the name of the county
-    popup.setLngLat(e.lngLat)
-      .setText(feature.properties.COUNTY)
-      .addTo(map);
-  });
-});
+}); // 'load'
 
 /////
 function setPaintColors(geoJsonObject) {
@@ -269,6 +305,7 @@ function updateGeojson(geoJsonObject, feat) {
       // FIPS exists and colors are different, change color
       console.log("Update color and possibly tags");
       ff[indexOfFIPS].properties["fill-color"] = feat.properties["fill-color"];
+      ff[indexOfFIPS].properties.color = feat.properties.color;
       ff[indexOfFIPS].properties.tags = feat.properties.tags;
     }
   }
@@ -377,12 +414,20 @@ paletteColors.forEach(function(color) {
     f = feature(p);
     f.properties.FIPS = FEATURE.properties.FIPS;
     f.properties["fill-color"] = color;
+    f.properties.color = rawColorValue(f.properties["fill-color"]);
     f.properties.name = FEATURE.properties.name;
     f.properties.tags = FEATURE.properties.tags;
     // add the new clicked feature to the geojson
     geojson = updateGeojson(geojson, f);
 
-    setPaintColors(geojson);
+    let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
+    if (checkbox === true) { // city is checked
+      POINTS.push(f);
+      // Update points
+      map.getSource('points').setData(featureCollection(POINTS));
+    } else {
+      setPaintColors(geojson);
+    }
 
     // update the database
     firebase.database().ref(databaseEndpoint).set({
