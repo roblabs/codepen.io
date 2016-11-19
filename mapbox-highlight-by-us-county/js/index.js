@@ -139,7 +139,7 @@ map.on('load', function() {
       //   (https://www.mapbox.com/api-documentation/#geocoding)
       // FEATURE.properties.name = //
 
-      FEATURE.properties["fill-color"] = "#bd0026";
+      FEATURE.properties["fill-color"] = "#000000";
       FEATURE.properties.color = rawColorValue(FEATURE.properties["fill-color"]);
 
       // Update the map with new temporary marker by concatenating, not pushing, new marker to POINTS
@@ -411,29 +411,33 @@ paletteColors.forEach(function(color) {
       return;
     }
 
-    console.log(color);
-
+    let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
     let t = $("input[name='tags']").tagsinput('items');
     FEATURE.properties.tags = t.toString();
-    FEATURE.properties["fill-color"] = color;
 
     // Create local copy, and pass that by value rather than the global
     p = point([FEATURE.geometry.coordinates[0], FEATURE.geometry.coordinates[1]]);
     f = feature(p);
     f.properties.FIPS = FEATURE.properties.FIPS;
     f.properties["fill-color"] = color;
-    f.properties.color = rawColorValue(f.properties["fill-color"]);
+    f.properties.color = rawColorValue(color);
     f.properties.name = FEATURE.properties.name;
     f.properties.tags = FEATURE.properties.tags;
-    // add the new clicked feature to the geojson
-    geojson = updateGeojson(geojson, f);
 
-    let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
     if (checkbox === true) { // city is checked
-      POINTS.push(f);
-      // Update points
+      // Update geojson
+      geojson.features.push(f);
+
+      // Update POINTS
+      POINTS = geojson.features.filter(function(f) {
+        return f.properties.name === "";
+      });
+
       map.getSource('points').setData(featureCollection(POINTS));
     } else {
+      // add the new clicked feature to the geojson
+      geojson = updateGeojson(geojson, f);
+
       setPaintColors(geojson);
     }
 
