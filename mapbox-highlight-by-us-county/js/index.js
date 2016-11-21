@@ -150,7 +150,6 @@ map.on('load', function() {
       });
 
       console.clear();
-      console.log(pointFeatures.length);
       if (pointFeatures.length) {
 
         f = feature();
@@ -332,7 +331,7 @@ function properties() {
   return {
     "fill-color": "#ff0000",
     "tags": "",
-    "FIPS": null,
+    "FIPS": "",
     "name": ""
   };
 }
@@ -474,14 +473,20 @@ paletteColors.forEach(function(color) {
 
     if (checkbox === true) { // city is checked
       // Update geojson
-      geojson.features.push(f);
+      if (FEATURE_INDEX !== null) {
 
-      // Update POINTS
-      POINTS = geojson.features.filter(function(f) {
-        return f.properties.name === "";
-      });
+        // TODO special case for FIPS
+        f.properties.FIPS = "";
 
-      map.getSource('points').setData(featureCollection(POINTS));
+        geojson.features[FEATURE_INDEX] = f;
+
+        // Update POINTS
+        POINTS = geojson.features.filter(function(f) {
+          return f.properties.name === "";
+        });
+
+        map.getSource('points').setData(featureCollection(POINTS));
+      }
     } else {
       // add the new clicked feature to the geojson
       geojson = updateGeojson(geojson, f);
