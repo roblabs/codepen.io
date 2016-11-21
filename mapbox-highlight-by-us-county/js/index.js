@@ -9,6 +9,8 @@ var databaseEndpoint = '/production/';
 var geojson = featureCollection([]);
 var POINTS = []; // city points
 var FEATURE = null; // create empty feature
+var FEATURE_INDEX = null;
+var TAGS = [];
 
 // FIPS are unique codes for a county
 var FIPS = [];
@@ -17,7 +19,7 @@ var filter;
 var baseFilter = ['in', 'FIPS'];
 
 // Settings for Constants, colors and timeouts
-var mouseOverDelay = 100; // milliseconds delay before showing popup
+var mouseOverDelay = 200; // milliseconds delay before showing popup
 var setTimeoutConst;
 var colorHighlightedCounty = "#888888";
 var OPACITY = 0.5;
@@ -126,6 +128,7 @@ map.on('load', function() {
 
     // Since we clicked on a new feature, nullify the previous one
     FEATURE = null;
+    FEATURE_INDEX = null;
 
     // Create a new GeoJson feature and properties
     let p = point([e.lngLat.lng, e.lngLat.lat]);
@@ -135,9 +138,51 @@ map.on('load', function() {
 
     if (checkbox === true) { // City
 
+      // Turn off county border highlighted
+      map.setFilter("county-border", baseFilter);
+
       // TODO We cannot save any data from the Geocoding calls
       //   (https://www.mapbox.com/api-documentation/#geocoding)
       // FEATURE.properties.name = //
+
+      var pointFeatures = map.queryRenderedFeatures(e.point, {
+        layers: ['points']
+      });
+
+      console.clear();
+      console.log(pointFeatures.length);
+      if (pointFeatures.length) {
+
+        f = feature();
+        f.geometry = pointFeatures[0].geometry;
+        f.properties = pointFeatures[0].properties;
+        // console.log("Clicked FEATURE = " + f.toSource());
+
+        geojson.features.map(function(geoFeature, index) {
+          var GeoJsonEQ = new GeojsonEquality({
+            precision: 1
+          });
+          compare = GeoJsonEQ.compare(geoFeature.geometry, f.geometry);
+
+          if (compare === true) {
+            // console.log("index = ", index, geoFeature.toSource());
+            FEATURE_INDEX = index;
+
+            // preserve the feature from the database
+            FEATURE.geometry = geojson.features[FEATURE_INDEX].geometry;
+            FEATURE.properties = geojson.features[FEATURE_INDEX].properties;
+            let t = FEATURE.properties.tags;
+
+            $("input[name='tags']").tagsinput('removeAll');
+            $("input[name='tags']").tagsinput('add', t);
+
+            // console.log("FEATURE = " + FEATURE.toSource());
+            return;
+          }
+        });
+
+        return;
+      }
 
       FEATURE.properties["fill-color"] = "#000000";
       FEATURE.properties.color = rawColorValue(FEATURE.properties["fill-color"]);
@@ -146,6 +191,9 @@ map.on('load', function() {
       map.getSource('points').setData(featureCollection(POINTS.concat(FEATURE)));
 
     } else { // County
+      // Set markers to only those that are from the geojson database
+      map.getSource('points').setData(featureCollection(POINTS));
+
       queryFeature = map.queryRenderedFeatures(e.point, {
         layers: ['counties']
       });
@@ -184,11 +232,11 @@ map.on('load', function() {
     // If focus is on a point, then show popup, but exit
     if (pointFeatures.length) {
       var pointFeature = pointFeatures[0];
-      setTimeoutConst = setTimeout(function(){
+      setTimeoutConst = setTimeout(function() {
         popup.setLngLat(pointFeature.geometry.coordinates)
           .setText(pointFeature.properties.color + " " + pointFeature.properties.tags)
           .addTo(map);
-         }, mouseOverDelay);
+      }, mouseOverDelay);
 
       return;
     }
@@ -201,11 +249,11 @@ map.on('load', function() {
       // Single out the first found feature on mouseove.
       var feature = features[0];
 
-      setTimeoutConst = setTimeout(function(){
+      setTimeoutConst = setTimeout(function() {
         popup.setLngLat(e.lngLat)
           .setText(feature.properties.COUNTY)
           .addTo(map);
-         }, mouseOverDelay);
+      }, mouseOverDelay);
     }
 
     // Change the cursor style as a UI indicator.
@@ -412,7 +460,7 @@ paletteColors.forEach(function(color) {
     }
 
     let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
-    let t = $("input[name='tags']").tagsinput('items');
+    let t = TAGS;
     FEATURE.properties.tags = t.toString();
 
     // Create local copy, and pass that by value rather than the global
@@ -509,7 +557,29 @@ $(function() {
     var val = $element.val();
     if (val === null)
       val = "null";
-    var items = $element.tagsinput('items');
+
+    TAGS = $element.tagsinput('items');
+
+    if (FEATURE) {
+      FEATURE.properties.tags = TAGS.toString();
+
+      if (FEATURE_INDEX !== null) {
+        geojson.features[FEATURE_INDEX] = FEATURE;
+
+        // Update POINTS
+        POINTS = geojson.features.filter(function(f) {
+          return f.properties.name === "";
+        });
+
+        map.getSource('points').setData(featureCollection(POINTS));
+
+        // update the database
+        firebase.database().ref(databaseEndpoint).set({
+          geojson: geojson
+        });
+
+      }
+    }
 
   }).trigger('change');
 });
