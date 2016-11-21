@@ -108,9 +108,7 @@ map.on('load', function() {
 
       if (geojson.features !== undefined) {
         setPaintColors(geojson);
-        POINTS = geojson.features.filter(function(f) {
-          return f.properties.name === "";
-        });
+        updatePOINTS(geojson);
       } else { // data base is NOT empty, but has no features
         geojson = featureCollection([]);
       }
@@ -118,9 +116,6 @@ map.on('load', function() {
     } else { // data base is empty
       geojson = featureCollection([]);
     }
-
-    // Set initial points from the database
-    map.getSource('points').setData(featureCollection(POINTS));
   });
 
   map.on('click', function(e) {
@@ -155,7 +150,6 @@ map.on('load', function() {
         f = feature();
         f.geometry = pointFeatures[0].geometry;
         f.properties = pointFeatures[0].properties;
-        // console.log("Clicked FEATURE = " + f.toSource());
 
         geojson.features.map(function(geoFeature, index) {
           var GeoJsonEQ = new GeojsonEquality({
@@ -164,7 +158,7 @@ map.on('load', function() {
           compare = GeoJsonEQ.compare(geoFeature.geometry, f.geometry);
 
           if (compare === true) {
-            // console.log("index = ", index, geoFeature.toSource());
+            console.log("geojson equality index = ", index);
             FEATURE_INDEX = index;
 
             // preserve the feature from the database
@@ -175,7 +169,6 @@ map.on('load', function() {
             $("input[name='tags']").tagsinput('removeAll');
             $("input[name='tags']").tagsinput('add', t);
 
-            // console.log("FEATURE = " + FEATURE.toSource());
             return;
           }
         });
@@ -336,6 +329,15 @@ function properties() {
   };
 }
 
+function updatePOINTS(geoJsonObject) {
+  // Update POINTS
+  POINTS = geoJsonObject.features.filter(function(f) {
+    return f.properties.FIPS === undefined;
+  });
+
+  map.getSource('points').setData(featureCollection(POINTS));
+}
+
 function updateGeojson(geoJsonObject, feat) {
 
   let ff = geoJsonObject.features;
@@ -475,17 +477,9 @@ paletteColors.forEach(function(color) {
       // Update geojson
       if (FEATURE_INDEX !== null) {
 
-        // TODO special case for FIPS
-        f.properties.FIPS = "";
-
         geojson.features[FEATURE_INDEX] = f;
 
-        // Update POINTS
-        POINTS = geojson.features.filter(function(f) {
-          return f.properties.name === "";
-        });
-
-        map.getSource('points').setData(featureCollection(POINTS));
+        updatePOINTS(geojson);
       }
     } else {
       // add the new clicked feature to the geojson
@@ -571,12 +565,7 @@ $(function() {
       if (FEATURE_INDEX !== null) {
         geojson.features[FEATURE_INDEX] = FEATURE;
 
-        // Update POINTS
-        POINTS = geojson.features.filter(function(f) {
-          return f.properties.name === "";
-        });
-
-        map.getSource('points').setData(featureCollection(POINTS));
+        updatePOINTS(geojson);
 
         // update the database
         firebase.database().ref(databaseEndpoint).set({
