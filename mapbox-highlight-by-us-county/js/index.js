@@ -475,7 +475,12 @@ paletteColors.forEach(function(color) {
       if (FEATURE_INDEX === null) { // null implies not a current marker
         geojson.features.push(f);
       } else {
-        geojson.features[FEATURE_INDEX] = f;
+        // remove if the color is the same
+        if (f.properties.color === geojson.features[FEATURE_INDEX].properties.color) {
+          geojson.features.splice(FEATURE_INDEX, 1);
+        } else {
+          geojson.features[FEATURE_INDEX] = f;
+        }
       }
       updatePOINTS(geojson);
 
