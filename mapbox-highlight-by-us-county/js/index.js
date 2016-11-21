@@ -175,7 +175,9 @@ map.on('load', function() {
         return;
       }
 
+      // Set a dark color marker
       FEATURE.properties["fill-color"] = "#000000";
+      FEATURE.properties.tags = "Set tags and apply color";
       FEATURE.properties.color = rawColorValue(FEATURE.properties["fill-color"]);
 
       // Update the map with new temporary marker by concatenating, not pushing, new marker to POINTS
@@ -222,7 +224,7 @@ map.on('load', function() {
       var pointFeature = pointFeatures[0];
       setTimeoutConst = setTimeout(function() {
         popup.setLngLat(pointFeature.geometry.coordinates)
-          .setText(pointFeature.properties.color + " " + pointFeature.properties.tags)
+          .setText(pointFeature.properties.name + " " + pointFeature.properties.tags)
           .addTo(map);
       }, mouseOverDelay);
 
@@ -328,7 +330,7 @@ function properties() {
 function updatePOINTS(geoJsonObject) {
   // Update POINTS
   POINTS = geoJsonObject.features.filter(function(f) {
-    return f.properties.FIPS === undefined;
+    return f.properties.FIPS === "";
   });
 
   map.getSource('points').setData(featureCollection(POINTS));
@@ -470,12 +472,13 @@ paletteColors.forEach(function(color) {
 
     if (CHECKBOX === true) { // city is checked
       // Update geojson
-      if (FEATURE_INDEX !== null) {
-
+      if (FEATURE_INDEX === null) { // null implies not a current marker
+        geojson.features.push(f);
+      } else {
         geojson.features[FEATURE_INDEX] = f;
-
-        updatePOINTS(geojson);
       }
+      updatePOINTS(geojson);
+
     } else {
       // add the new clicked feature to the geojson
       geojson = updateGeojson(geojson, f);
