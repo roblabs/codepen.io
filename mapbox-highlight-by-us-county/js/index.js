@@ -12,8 +12,9 @@ var FEATURE = null; // create empty feature
 var FEATURE_INDEX = null;
 var TAGS = [];
 
-// FIPS are unique codes for a county
-var FIPS = [];
+// User interface and filters
+var CHECKBOX;
+var FIPS = []; // FIPS are unique codes for a county
 var tags = [];
 var filter;
 var baseFilter = ['in', 'FIPS'];
@@ -95,6 +96,9 @@ map.on('load', function() {
   // Border highlighted layer
   map.addLayer(addCountyBorderLayer(), 'place-city-sm');
 
+  // User interface
+  CHECKBOX = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
+
   // Database
   var databaseObject = [];
   var rootRef = firebase.database().ref(databaseEndpoint);
@@ -129,12 +133,7 @@ map.on('load', function() {
     let p = point([e.lngLat.lng, e.lngLat.lat]);
     FEATURE = feature(p);
 
-    let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
-
-    if (checkbox === true) { // City
-
-      // Turn off county border highlighted
-      map.setFilter("county-border", baseFilter);
+    if (CHECKBOX === true) { // City
 
       // TODO We cannot save any data from the Geocoding calls
       //   (https://www.mapbox.com/api-documentation/#geocoding)
@@ -183,9 +182,6 @@ map.on('load', function() {
       map.getSource('points').setData(featureCollection(POINTS.concat(FEATURE)));
 
     } else { // County
-      // Set markers to only those that are from the geojson database
-      map.getSource('points').setData(featureCollection(POINTS));
-
       queryFeature = map.queryRenderedFeatures(e.point, {
         layers: ['counties']
       });
@@ -460,7 +456,6 @@ paletteColors.forEach(function(color) {
       return;
     }
 
-    let checkbox = $('input[name="city-county-checkbox"]').bootstrapSwitch('state');
     let t = TAGS;
     FEATURE.properties.tags = t.toString();
 
@@ -473,7 +468,7 @@ paletteColors.forEach(function(color) {
     f.properties.name = FEATURE.properties.name;
     f.properties.tags = FEATURE.properties.tags;
 
-    if (checkbox === true) { // city is checked
+    if (CHECKBOX === true) { // city is checked
       // Update geojson
       if (FEATURE_INDEX !== null) {
 
@@ -541,6 +536,18 @@ function addCountyBorderLayer() {
 }
 
 // jQuery
+
+$('input[name="city-county-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+  CHECKBOX = state;
+
+  // Turn off county border highlighted
+  map.setFilter("county-border", baseFilter);
+
+  // Set markers to only those that are from the geojson database
+  updatePOINTS(geojson);
+
+});
+
 $(function() {
 
   $("[name='city-county-checkbox']").bootstrapSwitch();
