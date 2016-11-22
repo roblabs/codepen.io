@@ -3,7 +3,7 @@ A Pen created at CodePen.io. You can find this one at http://codepen.io/roblabs/
  # Customer Interface
 ## Set City or County mode using switch
 ### Click on a City
-  * Sets a dark color marker
+  * Set a dark color marker
   * Add new > Add tags, 'apply' settings by pressing a color
   * Update existing > change colors, change tags, or remove altogether by 'apply' same color
 * Hover on a City
@@ -41,7 +41,11 @@ A Pen created at CodePen.io. You can find this one at http://codepen.io/roblabs/
 * [JQuery UI](https://jqueryui.com/) - jQuery License
 * [geojson-equality](https://github.com/geosquare/geojson-equality) - MIT License
 
-# Known issues
+# Known Issues
 * Mapbox Terms of Service for free account does not allow a customer to retain the results of a Geocode
-* A city is defined as not having a name in the data base
+* Markers can not be set too close to another marker. Marker points are determined to be equal if customer clicks on point within a certain distance.  Distance is determined by precision (http://gis.stackexchange.com/a/8655)
+
+
+# Fixed Issues
+* A city is defined as not having a `FIPS` value in the data base.  FIPS is a unique value that can determine a county.
 * Moving from County mode to City mode leaves border-highlighted
